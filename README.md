@@ -241,7 +241,7 @@ Everything in Doodle BATTLES is drawn in code, not in an image editor.
 - 📌 The pause screen is a tilted sticky note with wave, score, and best
 - 🔲 Every button is a cut-paper card with a wobbly hand-drawn border and
   a hard offset shadow that collapses when pressed
-- 🔤 Type is set in **Gochi Hand** for the logo and headings, and
+- 🔤 Type is set in **Fredericka the Great** for the logo and headings, and
   **Comic Relief** for body text
 - 🎨 All HUD elements use multiply blending, so ink reads correctly over
   whatever is behind them
@@ -305,7 +305,7 @@ behaviour, scoring, game states, input handling, audio, and storage.
 | ----------- | ------------------------------------ |
 | Three.js   | 3D rendering                         |
 | PeerJS     | Peer-to-peer multiplayer             |
-| Google Fonts | Gochi Hand, Comic Relief         |
+| Google Fonts | Fredericka the Great, Comic Relief |
 
 ---
 
@@ -491,13 +491,13 @@ components may have separate license and attribution requirements:
 | -------------------- | ------------ |
 | Three.js             | MIT          |
 | PeerJS               | MIT          |
-| Gochi Hand font      | OFL 1.1      |
+| Fredericka the Great  | OFL 1.1      |
 | Comic Relief font    | OFL 1.1      |
 
-**Gochi Hand** is designed by **HT Fonts** (Juan Pablo del Peral) and is used
-for the logo and headings. It ships as a single weight, so the headings are set
-at that one weight rather than being synthetically emboldened. Both fonts are
-served from Google Fonts under the SIL Open Font License 1.1.
+**Fredericka the Great** is designed by **Tart Workshop** and is used for the
+logo and headings. It ships as a single weight, so the headings are set at that
+one weight rather than being synthetically emboldened. Both fonts are served
+from Google Fonts under the SIL Open Font License 1.1.
 
 All original game code, art, sounds, music, and level design in this
 repository are covered by the MIT License above unless a specific file
