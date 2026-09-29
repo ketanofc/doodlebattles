@@ -1,0 +1,341 @@
+/* touch.css - on-screen controls and mobile HUD for Doodle BATTLES.
+ *
+ * Loaded unconditionally but inert: everything here is gated on the
+ * html.tactil class that touch.js adds only on a touch device, so a desktop
+ * visitor never sees a control layer or pays for the styles.
+ *
+ * Stacking order (deliberate):
+ *   canvas  z 0
+ *   #touch  z 1   <- control zones and buttons
+ *   #hud    z 2   <- HUD text, menus, scoreboard
+ *   #girar  z 3   <- rotate prompt
+ * #hud is pointer-events:none, so taps fall through it to the zones beneath,
+ * while the menu and scoreboard still sit on top and receive their own taps.
+ */
+
+/* ---------------------------------------------------------------- layer ---- */
+
+#touch { display: none; }
+#girar { display: none; }
+
+html.tactil #touch {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+/* --u is the layout unit: about 1% of the visible viewport height, set from
+   visualViewport in touch.js and clamped there. It lives on <html> so the HUD
+   rules below, which are not descendants of #touch, inherit the same value.
+   The 4px default matches the clamp midpoint for a desktop-sized window and
+   only shows for the frame before touch.js first measures. */
+html.tactil { --u: 4px; }
+
+html.tactil #touch.oculto { display: none; }
+html.tactil #hud { z-index: 2; }
+html.tactil #c { touch-action: none; }
+
+/* No pull-to-refresh or rubber-banding, but the menu must still scroll. */
+html.tactil, html.tactil body { overscroll-behavior: none; }
+html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+
+/* ----------------------------------------------------------------- zones --- */
+
+.tz-izq, .tz-der { position: absolute; top: 0; height: 100%; pointer-events: auto; z-index: 1; }
+/* Split leaves a thin dead strip in the middle so a thumb sliding across the
+   screen cannot swap from walking to aiming mid-gesture. */
+.tz-izq { left: 0; width: 46%; }
+.tz-der { right: 0; width: 54%; }
+
+/* --------------------------------------------------- floating move stick --- */
+
+/* Geometry is shared with touch.js: STICK_D and STICK_TRAVEL there must match
+   24 and 0.4 here. The knob is 20% of the ring (inset 40%), which leaves exactly
+   0.4 of the diameter as travel, so a full push parks the knob on the rim
+   instead of sliding out of it. */
+.tpalanca {
+  position: absolute;
+  left: 0; top: 0;
+  width: calc(var(--u) * 24);
+  height: calc(var(--u) * 24);
+  margin: calc(var(--u) * -12) 0 0 calc(var(--u) * -12);
+  border: calc(var(--u) * .5) solid rgba(26, 48, 192, .5);
+  border-radius: 50%;
+  background: rgba(246, 243, 230, .3);
+  display: none;
+  pointer-events: none;
+  z-index: 3;
+}
+.tpalanca.on { display: block; }
+/* Inner knob, offset by the JS transform. */
+.tpalanca::after {
+  content: '';
+  position: absolute;
+  inset: 40%;
+  border-radius: 50%;
+  background: rgba(26, 48, 192, .38);
+  border: calc(var(--u) * .3) solid rgba(251, 249, 241, .8);
+}
+
+/* --------------------------------------------------------------- buttons --- */
+
+/* --x/--y are offsets in --u from the nearest safe-area inset and --d is the
+   diameter. --k scales the whole cluster, which is how the cramped portrait
+   layout shrinks it without restating eight positions.
+   The cluster is a coarse grid, and every pair of neighbours leaves 1.4u of
+   daylight. That margin is what makes the 32px floors below safe: on the
+   shortest realistic phone the floor adds well under a pixel per side, so a
+   floored button can never grow into its neighbour. */
+.tb {
+  position: absolute;
+  --k: 1;
+  --x: 2; --y: 2; --d: 9;
+  right: calc(env(safe-area-inset-right, 0px) + var(--u) * var(--x) * var(--k));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--u) * var(--y) * var(--k));
+  /* --u tracks viewport height, and a landscape phone is only ~390px tall, so
+     an 8.8u button lands near 31px. 32px is the floor for a dense game HUD. */
+  width: max(32px, calc(var(--u) * var(--d) * var(--k)));
+  height: max(32px, calc(var(--u) * var(--d) * var(--k)));
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-display);
+  font-weight: 400;
+  /* Labels are a fixed fraction of their own button, so a big button gets a
+     big label without any per-button font size to keep in sync. */
+  font-size: max(9px, calc(var(--u) * var(--d) * 0.26 * var(--k)));
+  line-height: 1.05;
+  letter-spacing: .5px;
+  text-align: center;
+  color: var(--ink);
+  background: rgba(251, 249, 241, .5);
+  border: max(2px, calc(var(--u) * .45)) solid rgba(26, 48, 192, .55);
+  border-radius: 50%;
+  box-shadow: 0 calc(var(--u) * .22) 0 rgba(26, 48, 192, .2);
+  transition: transform .06s ease, background .08s ease;
+  overflow: hidden;
+  z-index: 4;
+}
+.tb.on { transform: scale(.9); background: rgba(26, 48, 192, .3); }
+
+/* Row anchors. tb-top hangs from the status strip, tb-tl is the lone corner
+   button on the other side of the screen. */
+.tb-top { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + var(--u) * var(--y) * var(--k)); }
+.tb-tl {
+  right: auto; bottom: auto;
+  left: calc(env(safe-area-inset-left, 0px) + var(--u) * var(--x) * var(--k));
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * var(--y) * var(--k));
+}
+
+/* Right-hand cluster, a grid anchored to the bottom-right corner:
+        dash  melee  nade
+        jump  duck   reload
+        fire  aim
+   Each is rotated a few degrees so the block does not read as a keypad, and
+   the pressed state keeps that rotation instead of snapping square. */
+.tb-fire { --x: 1.6; --y: 1.6; --d: 13; transform: rotate(-4deg); }
+.tb-fire.on { transform: rotate(-4deg) scale(.9); }
+.tb-aim { --x: 16; --y: 2.2; --d: 9.2; transform: rotate(3deg); }
+.tb-aim.on { transform: rotate(3deg) scale(.9); }
+.tb-jump { --x: 1.6; --y: 16.2; --d: 9.2; transform: rotate(3deg); }
+.tb-jump.on { transform: rotate(3deg) scale(.9); }
+.tb-duck { --x: 12.2; --y: 16.6; --d: 8.8; transform: rotate(-3deg); }
+.tb-duck.on { transform: rotate(-3deg) scale(.9); }
+.tb-reload { --x: 22.4; --y: 16.2; --d: 8.8; transform: rotate(2deg); }
+.tb-reload.on { transform: rotate(2deg) scale(.9); }
+.tb-nade { --x: 22.4; --y: 26.4; --d: 8.8; transform: rotate(-2deg); }
+.tb-nade.on { transform: rotate(-2deg) scale(.9); }
+.tb-melee { --x: 12.2; --y: 26.4; --d: 8.8; transform: rotate(3deg); }
+.tb-melee.on { transform: rotate(3deg) scale(.9); }
+.tb-dash { --x: 1.6; --y: 26.4; --d: 8.8; transform: rotate(-3deg); }
+.tb-dash.on { transform: rotate(-3deg) scale(.9); }
+
+/* Top row: grapple under the right thumb, then weapon switch, scoreboard and
+   music. These sit in the corner where a thumb rests, so they are small
+   relative to the combat cluster but never below the tap floor. */
+.tb-grapple { --x: 1.6; --y: 1.6; --d: 11; transform: rotate(-3deg); }
+.tb-grapple.on { transform: rotate(-3deg) scale(.9); }
+.tb-slot { --x: 14; --y: 1.6; --d: 8.8; }
+.tb-score { --x: 24.2; --y: 1.6; --d: 8.8; }
+.tb-music { --x: 34.4; --y: 1.6; --d: 8.8; }
+
+.tb-pausa { --x: 1.6; --y: 1.6; --d: 8.8; transform: rotate(3deg); }
+.tb-pausa.on { transform: rotate(3deg) scale(.9); }
+
+/* The switch-weapon button doubles as the current weapon readout, so the
+   desktop slot list is hidden on touch. Weapon names are long, so this label
+   is a little smaller than the button's own ratio and is clipped. */
+.tb-gun .t-lbl {
+  font-size: max(8px, calc(var(--u) * var(--d) * 0.2 * var(--k)));
+  max-width: 88%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ portrait fit --- */
+
+/* A phone held upright has ~48u of usable width past the look zone. Squeeze
+   the cluster and drop the two niceties rather than letting buttons overlap. */
+@media (orientation: portrait) {
+  html.tactil #touch .tb { --k: .78; }
+  html.tactil #touch .tb-music,
+  html.tactil #touch .tb-score { display: none; }
+}
+
+/* ------------------------------------------------------------ compact HUD --- */
+
+/* Desktop puts score top-left and ammo bottom-left. On touch the bottom-left is
+   the movement zone and the bottom-right is the action cluster, so the whole
+   read-out moves into a strip along the top, clear of both. */
+html.tactil .hud-tl {
+  left: calc(env(safe-area-inset-left, 0px) + var(--u) * 10);
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * .4);
+  font-size: calc(var(--u) * 3.4);
+  transform: rotate(-1deg);
+}
+html.tactil .hud-bl {
+  left: calc(env(safe-area-inset-left, 0px) + var(--u) * 10);
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * 4);
+  bottom: auto;
+}
+html.tactil .hud-br {
+  left: calc(env(safe-area-inset-left, 0px) + var(--u) * 10);
+  right: auto;
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * 13.6);
+  bottom: auto;
+  text-align: left;
+}
+/* Pause sits top-left, so the status strip starts to its right. */
+html.tactil .hud-tr {
+  right: calc(env(safe-area-inset-right, 0px) + var(--u) * 44);
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * .4);
+  font-size: calc(var(--u) * 2.6);
+  text-align: right;
+}
+html.tactil .hud-tr .left { font-size: calc(var(--u) * 2); }
+
+html.tactil .ammo b { font-size: calc(var(--u) * 5.4); }
+html.tactil .ammo span { font-size: calc(var(--u) * 2.4); }
+html.tactil .reloading { font-size: calc(var(--u) * 1.8) !important; }
+html.tactil .health { font-size: calc(var(--u) * 2); gap: calc(var(--u) * .7); margin-bottom: calc(var(--u) * .4); }
+html.tactil .bar { width: calc(var(--u) * 22); height: calc(var(--u) * 1.5); }
+html.tactil .nades { margin-left: calc(var(--u) * .8); }
+html.tactil .nades i { width: calc(var(--u) * 1.1); height: calc(var(--u) * 1.3); border-width: calc(var(--u) * .2); }
+html.tactil .nades i::after { left: calc(var(--u) * .25); top: calc(var(--u) * -.5); width: calc(var(--u) * .25); height: calc(var(--u) * .4); }
+html.tactil .weapon { font-size: calc(var(--u) * 2.4); }
+html.tactil .hint { display: none; }
+/* The per-weapon slot list is a keyboard affordance; the GUN button covers it. */
+html.tactil .slots { display: none; }
+/* Decorative wave tally would sit under the movement thumb. */
+html.tactil .tally { display: none; }
+
+/* Tips and kill feed were placed for a mouse UI, in the middle of the new
+   button cluster. */
+html.tactil .tip {
+  bottom: auto;
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * 2.4);
+  font-size: calc(var(--u) * 2.2);
+  padding: 0 calc(var(--u) * 4);
+}
+html.tactil .killfeed {
+  top: 52%;
+  right: calc(env(safe-area-inset-right, 0px) + var(--u) * 2);
+  font-size: calc(var(--u) * 2.1);
+}
+html.tactil .message { top: 20%; }
+html.tactil .msg-main { font-size: calc(var(--u) * 11); }
+html.tactil .msg-sub { font-size: calc(var(--u) * 2.8); }
+html.tactil .combo { font-size: calc(var(--u) * 2.2); min-height: calc(var(--u) * 2.6); }
+html.tactil .modifier { font-size: calc(var(--u) * 1.9); }
+html.tactil .timer { font-size: calc(var(--u) * 2); }
+html.tactil .pvpscore { font-size: calc(var(--u) * 1.7); }
+
+/* Fixed 420px-wide chrome does not fit a phone. */
+html.tactil .bossbar { width: min(420px, 62vw); margin-left: min(-210px, -31vw); font-size: calc(var(--u) * 2.1); top: calc(env(safe-area-inset-top, 0px) + var(--u) * 7); }
+html.tactil .bar.big { width: 100%; height: calc(var(--u) * 1.7); }
+html.tactil .board { min-width: 0; width: min(420px, 90vw); font-size: calc(var(--u) * 2.1); padding: calc(var(--u) * 1.2) calc(var(--u) * 2); top: 16%; }
+html.tactil .board h3 { font-size: calc(var(--u) * 2.4); }
+html.tactil .board .foot { font-size: calc(var(--u) * 1.5); }
+
+/* ---------------------------------------------------------- legend swap --- */
+
+/* Three columns do not fit; show only the one that matches the device. */
+.panel .col-touch { display: none; }
+html.tactil .panel .col-mk,
+html.tactil .panel .col-pad { display: none; }
+html.tactil .panel .col-touch { display: block; }
+
+/* --------------------------------------------------------- rotate prompt --- */
+
+html.tactil #girar {
+  display: grid;
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  place-items: center;
+  text-align: center;
+  padding: calc(var(--u) * 6);
+  background: rgba(26, 48, 192, .93);
+  color: var(--paper-hi);
+}
+html.tactil #girar.oculto { display: none; }
+#girar .g-icon {
+  width: calc(var(--u) * 16);
+  height: calc(var(--u) * 16);
+  margin: 0 auto calc(var(--u) * 3);
+  border: calc(var(--u) * .8) solid var(--paper-hi);
+  border-radius: calc(var(--u) * 2.5);
+  animation: gira 2.4s ease-in-out infinite;
+}
+@keyframes gira {
+  0%, 40% { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(-90deg); }
+}
+#girar h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: calc(var(--u) * 6);
+  margin: 0 0 calc(var(--u) * 1.4);
+  letter-spacing: 2px;
+}
+#girar p { font-size: calc(var(--u) * 3); margin: 0; opacity: .9; }
+
+/* ------------------------------------------------- iOS install nudge --- */
+
+/* Only ever shown on iOS Safari, which cannot install a PWA from a banner. */
+#ioshint {
+  position: fixed;
+  z-index: 4;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--u) * 22);
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  gap: calc(var(--u) * 1.4);
+  max-width: min(420px, 88vw);
+  padding: calc(var(--u) * 1.4) calc(var(--u) * 2.4);
+  font-size: calc(var(--u) * 2.1);
+  line-height: 1.25;
+  color: var(--ink);
+  background: var(--paper-hi);
+  border: calc(var(--u) * .3) solid var(--ink);
+  border-radius: var(--wob-b);
+  box-shadow: var(--lift);
+  pointer-events: auto;
+  cursor: pointer;
+}
+html.tactil #ioshint.mostrar { display: flex; }
+#ioshint .ih-x { font-size: calc(var(--u) * 3); opacity: .6; margin-left: auto; }
+#ioshint b { font-family: var(--font-display); font-weight: 400; color: var(--red); }

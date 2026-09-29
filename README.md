@@ -42,9 +42,13 @@ beat your best score.
 - 🔊 Fully procedural audio: every sound and the music are synthesised at
   runtime with the Web Audio API, no audio files
 - 🕹️ Mouse and keyboard plus full PS5 controller support
+- 📱 Touch controls for phones and tablets: floating movement stick, drag to
+  look, and auto-sprint
+- 📲 Installable as a PWA and runs fullscreen on iOS and Android
+- 📉 Adaptive render scale keeps the frame rate up on weaker phones
 - ⚙️ Sensitivity, invert-look, trackpad mode, and music toggles
 - 💾 Best score and wave checkpoint saved locally
-- 📱 Responsive layout from ultrawide down to mobile
+- 🖥️ Responsive layout from ultrawide down to a landscape phone
 - ⚡ No build step, no bundler, no framework
 
 ---
@@ -112,6 +116,43 @@ from memorising buttons.
 | Pause           | `Options`                               |
 
 The game swaps control prompts automatically when it detects a gamepad.
+
+### Touch Screen
+
+Phones and tablets get an on-screen control layer instead. It appears only on a
+touch device, so a desktop browser never sees it.
+
+| Action                | Control                                                |
+| --------------------- | ------------------------------------------------------ |
+| Move                  | Left half of the screen — a stick appears where you touch |
+| Sprint                | Push the stick most of the way out                     |
+| Look / Aim            | Drag anywhere on the right half                        |
+| Fire / Slash          | **FIRE** — hold                                        |
+| Aim / Katana Guard    | **AIM** — hold                                         |
+| Grapple               | **HOOK** — hold to reel, tap to swing                  |
+| Quick Katana Slash    | **SLASH**                                               |
+| Jump / Wall Jump      | **JUMP**                                               |
+| Slide / Air Dash      | **DUCK** — hold                                        |
+| Dash-Slash            | **DASH** — once the focus gauge is lit                 |
+| Reload                | **RELOAD**                                             |
+| Grenade               | **NADE** — hold to throw further                       |
+| Switch Weapon         | **GUN** — shows the weapon you will switch to          |
+| Scoreboard            | **SCORE** — hold (online)                              |
+| Music                 | **♪**                                                  |
+| Pause                 | **❙❙** — top left                                     |
+
+Notes:
+
+- The stick is a floating joystick: it appears wherever your thumb lands in the
+  left half, and its origin follows if you drag past the rim.
+- Two fingers work at once, so you can walk while firing or grappling.
+- On a phone held upright the game asks you to rotate, because a 3D shooter
+  needs the long axis. Tablets are left alone; a tablet held upright is big
+  enough to play.
+- On iOS, use **Share → Add to Home Screen** to get a fullscreen, installable
+  version. The game shows a one-time hint for this.
+- A hybrid laptop with both a touchscreen and a mouse keeps the keyboard
+  layout. Append `?touch=1` to the URL to force the touch controls on.
 
 ---
 
@@ -200,7 +241,7 @@ Everything in Doodle BATTLES is drawn in code, not in an image editor.
 - 📌 The pause screen is a tilted sticky note with wave, score, and best
 - 🔲 Every button is a cut-paper card with a wobbly hand-drawn border and
   a hard offset shadow that collapses when pressed
-- 🔤 Type is set in **Chelsea Market** for the logo and headings, and
+- 🔤 Type is set in **Gochi Hand** for the logo and headings, and
   **Comic Relief** for body text
 - 🎨 All HUD elements use multiply blending, so ink reads correctly over
   whatever is behind them
@@ -243,8 +284,11 @@ behaviour, scoring, game states, input handling, audio, and storage.
 - Web Audio API — all sound effects and music are synthesised
 - `localStorage` — best score, checkpoint, name, and settings
 - `requestAnimationFrame` — the game loop
-- Pointer Lock — mouse look
+- Pointer Lock — mouse look (desktop only; touch uses pointer events)
 - Pointer / Touch / Keyboard Events — input
+- `visualViewport` — control sizing follows the height the browser actually
+  shows, so a collapsing address bar does not push buttons off screen
+- Web App Manifest and Apple touch icons — installable PWA
 - Gamepad API — controller support
 - WebRTC via **PeerJS** for peer-to-peer multiplayer
 
@@ -261,7 +305,7 @@ behaviour, scoring, game states, input handling, audio, and storage.
 | ----------- | ------------------------------------ |
 | Three.js   | 3D rendering                         |
 | PeerJS     | Peer-to-peer multiplayer             |
-| Google Fonts | Chelsea Market, Comic Relief       |
+| Google Fonts | Gochi Hand, Comic Relief         |
 
 ---
 
@@ -306,9 +350,15 @@ issues. The art, audio, and game design are all original to this project.
 
 ## Mobile
 
-- [ ] Layout fits portrait screens
-- [ ] Buttons are large enough to tap
-- [ ] Page does not accidentally scroll
+- [x] Control layer appears on touch devices and stays off on desktop
+- [x] Layout fits landscape phone and tablet screens, portrait included
+- [x] All tap targets are at least 32px and none overlap
+- [x] Page does not scroll or rubber-band while playing
+- [x] Floating stick feeds movement, drag feeds look, auto-sprint works
+- [x] Every action has a button, and input cannot leak into the pause panel
+- [x] Rotate prompt on phones held upright
+- [x] Installable PWA with fullscreen display and safe-area insets
+- [x] Render scale adapts when the frame rate drops
 
 ## Desktop
 
@@ -348,6 +398,18 @@ start the run. Also check the music toggle in settings.
 Click the canvas to capture the mouse. If the pointer is not captured, the
 game shows a reminder to grab it.
 
+## The touch controls did not appear
+
+The on-screen controls only load for a device whose primary pointer is coarse,
+so a touchscreen laptop with a mouse keeps the keyboard layout on purpose. Add
+`?touch=1` to the URL to force them on.
+
+## The controls are the wrong size or half off screen
+
+The control layer is sized from `visualViewport`, so it should follow the
+browser chrome. If it looks stale, pull the page down once to force a
+re-measure, or close any in-app browser panel that was left open.
+
 ## The game feels laggy
 
 - Close unnecessary browser tabs
@@ -373,7 +435,6 @@ Contributions are welcome. Good contribution ideas:
 - Performance improvements
 - Accessibility improvements
 - New doodle animations and interface polish
-- Better mobile controls
 - Bug fixes
 - Documentation improvements
 
@@ -388,10 +449,10 @@ Please keep new features consistent with the hand-drawn notebook identity.
 - [ ] Global leaderboard
 - [ ] Achievements
 - [ ] More doodle maps
-- [ ] Offline / PWA support
+- [x] Offline / PWA support
 - [ ] Replay and score sharing
 - [ ] Accessibility improvements
-- [ ] Performance profiling on low-end devices
+- [x] Touch controls and adaptive performance on low-end devices
 - [ ] Gamepad remapping
 
 The roadmap may change as development continues.
@@ -430,8 +491,13 @@ components may have separate license and attribution requirements:
 | -------------------- | ------------ |
 | Three.js             | MIT          |
 | PeerJS               | MIT          |
-| Chelsea Market font  | OFL 1.1      |
+| Gochi Hand font      | OFL 1.1      |
 | Comic Relief font    | OFL 1.1      |
+
+**Gochi Hand** is designed by **HT Fonts** (Juan Pablo del Peral) and is used
+for the logo and headings. It ships as a single weight, so the headings are set
+at that one weight rather than being synthetically emboldened. Both fonts are
+served from Google Fonts under the SIL Open Font License 1.1.
 
 All original game code, art, sounds, music, and level design in this
 repository are covered by the MIT License above unless a specific file

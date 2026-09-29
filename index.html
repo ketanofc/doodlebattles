@@ -2,12 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- user-scalable=no is deliberate: a pinch mid-fight would desync the camera,
+     and every gesture here is handled through pointer events on the canvas. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>DOODLE BATTLES</title>
+<meta name="description" content="Doodle BATTLES - a hand-drawn browser shooter.">
+<meta name="theme-color" content="#1a30c0">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- Standalone launches on iOS ignore the manifest and read these instead. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Doodle BATTLES">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./brand/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="./brand/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=Comic+Relief&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Comic+Relief&family=Gochi+Hand&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./style.css">
+<!-- Inert on desktop: every rule in touch.css is gated on the html.tactil class
+     that touch.js sets, and only for a coarse pointer. -->
+<link rel="stylesheet" href="./touch.css">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -20,6 +36,9 @@
 <div id="hud"></div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script type="module" src="./game.js"></script>
+<!-- Loads before the game module finishes, and waits for window.__ds, so the
+     two files do not have to be ordered. -->
+<script src="./touch.js"></script>
 <div id="file-protocol-warning" style="display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:#faf8ee;border:2.5px solid #d02030;padding:10px 18px;border-radius:10px;font-family:'Comic Relief',cursive;color:#d02030;font-size:19px;z-index:99999;box-shadow:4px 4px 0 rgba(26,48,192,0.15);text-align:center;">
   ⚠️ Browsers block ES modules on direct <code>file://</code> URLs. Please launch with <b>play.bat</b> or run <code>python -m http.server</code>!
 </div>
