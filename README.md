@@ -417,6 +417,28 @@ respective owners and may have separate licenses.
 
 ---
 
+# 📜 License
+
+Doodle BATTLES' original source code is released under the **MIT License**.
+
+See [`LICENSE`](LICENSE) for the complete license text.
+
+Third-party libraries, fonts, sounds, images, APIs, and other external
+components may have separate license and attribution requirements:
+
+| Component            | License      |
+| -------------------- | ------------ |
+| Three.js             | MIT          |
+| PeerJS               | MIT          |
+| Chelsea Market font  | OFL 1.1      |
+| Comic Relief font    | OFL 1.1      |
+
+All original game code, art, sounds, music, and level design in this
+repository are covered by the MIT License above unless a specific file
+states otherwise.
+
+---
+
 # 📩 Support
 
 If something is not working, the game feels laggy, you find a bug, or you
