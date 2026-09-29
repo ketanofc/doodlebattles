@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DOODLE BATTLES</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script type="module" src="./game.js"></script>
+<div id="file-protocol-warning" style="display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:#faf8ee;border:2.5px solid #d02030;padding:10px 18px;border-radius:10px;font-family:'Patrick Hand',cursive;color:#d02030;font-size:20px;z-index:99999;box-shadow:4px 4px 0 rgba(26,48,192,0.15);text-align:center;">
+  ⚠️ Browsers block ES modules on direct <code>file://</code> URLs. Please launch with <b>play.bat</b> or run <code>python -m http.server</code>!
+</div>
+<script>
+if (location.protocol === 'file:') {
+  setTimeout(() => {
+    const w = document.getElementById('file-protocol-warning');
+    if (w) w.style.display = 'block';
+  }, 1000);
+}
+</script>
+</body>
+</html>
