@@ -1,7 +1,7 @@
-:root {
+﻿:root {
   --ink: #1a30c0; --red: #d02030; --paper: #f6f3e6; --paper-hi: #fbf9f1;
-  --font-display: 'Bubblegum Sans', 'Comic Sans MS', 'Segoe Print', 'Marker Felt', cursive;
-  --font-body: 'Sniglet', 'Comic Sans MS', 'Segoe Print', 'Marker Felt', cursive;
+  --font-display: 'Chelsea Market', 'Comic Sans MS', 'Segoe Print', 'Marker Felt', cursive;
+  --font-body: 'Comic Relief', 'Comic Sans MS', 'Segoe Print', 'Marker Felt', cursive;
   --wob-a: 12px 18px 10px 16px / 16px 10px 18px 12px;
   --wob-b: 9px 13px 8px 12px / 12px 8px 12px 9px;
   --wob-c: 7px 10px 6px 9px / 10px 6px 9px 7px;
@@ -64,17 +64,17 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
   box-shadow: var(--lift); border: 3px solid var(--ink); border-radius: var(--wob-a);
   transform: rotate(-.6deg); position: relative;
 }
-.panel > h1 { font-family: var(--font-display); font-weight: 800; font-size: 92px; margin: 0; letter-spacing: 2px; line-height: 1; }
+.panel > h1 { font-family: var(--font-display); font-weight: 400; font-size: 92px; margin: 0; letter-spacing: 2px; line-height: 1; }
 .panel h2 { font-size: 34px; margin: 6px 0 16px; font-weight: normal; }
 .panel .cols { display: flex; gap: 46px; justify-content: center; text-align: left; font-size: 21px; line-height: 1.4; }
-.panel .cols b { color: var(--red); } .colhead { font-family: var(--font-display); font-weight: 700; font-size: 24px; border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
+.panel .cols b { color: var(--red); } .colhead { font-family: var(--font-display); font-weight: 400; font-size: 24px; border-bottom: 2px solid var(--ink); margin-bottom: 4px; }
 .panel .go { font-size: 32px; margin-top: 18px; animation: blink 1.2s infinite; } @keyframes blink { 50% { opacity: .35; } }
 .panel .stats { font-size: 30px; line-height: 1.4; } .panel .stats b { color: var(--red); }
 .panel .tip { font-size: 21px; opacity: .8; margin-top: 8px; }
 
 /* ---- doodle button: cut paper card, hard ink shadow, stamps down on press ---- */
 .dbtn, .mainbtns button, .online button, .lobby button, .bigbtn, .codebox button {
-  font-family: var(--font-display); font-weight: 700; color: var(--ink);
+  font-family: var(--font-display); font-weight: 400; color: var(--ink);
   background: var(--paper-hi); border: 3px solid var(--ink);
   border-radius: var(--wob-b); box-shadow: var(--lift);
   cursor: pointer; position: relative; line-height: 1.05;
@@ -125,9 +125,9 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 .settings label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .settings input[type=range] { width: 220px; accent-color: #1a30c0; }
 .settings input[type=checkbox] { width: 18px; height: 18px; accent-color: #1a30c0; }
-.settings b { font-family: var(--font-display); font-weight: 700; color: var(--red); min-width: 56px; text-align: left; }
+.settings b { font-family: var(--font-display); font-weight: 400; color: var(--red); min-width: 56px; text-align: left; }
 .settings .k { opacity: .6; font-size: 17px; }
-.beststat { font-family: var(--font-display); font-weight: 700; font-size: 21px; opacity: .85; margin-top: 4px; }
+.beststat { font-family: var(--font-display); font-weight: 400; font-size: 21px; opacity: .85; margin-top: 4px; }
 /* sniper scope */
 .scope { position: absolute; inset: 0; opacity: 0; transition: opacity .1s; pointer-events: none; }
 .scope.on { opacity: 1; }
@@ -164,9 +164,9 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 #hud.nogame .focus-meter { display: none; }
 /* map picker */
 .mapsel { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--ink); flex-wrap: wrap; }
-.mapsel > span { font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: 1px; opacity: .7; }
+.mapsel > span { font-family: var(--font-display); font-weight: 400; font-size: 19px; letter-spacing: 1px; opacity: .7; }
 .mapbtn, .modebtn, .checkpoints button, .lobbyrow button {
-  font-family: var(--font-display); font-weight: 700; color: var(--ink);
+  font-family: var(--font-display); font-weight: 400; color: var(--ink);
   background: var(--paper-hi); border: 2.5px solid var(--ink);
   border-radius: var(--wob-c); padding: 5px 13px; cursor: pointer;
   transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s;
@@ -191,7 +191,7 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 .lobby .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
 .lobby input[type=text] { font-family: var(--font-body); font-size: 24px; width: 130px; text-align: center; letter-spacing: 4px; text-transform: uppercase; color: var(--ink); border: 2.5px solid var(--ink); border-radius: 6px 9px 6px 8px; background: transparent; padding: 3px 6px; }
 .lobby button, .bigbtn { font-size: 21px; padding: 6px 17px; transform: rotate(-.6deg); }
-.code { font-family: var(--font-display); font-weight: 800; font-size: 44px; letter-spacing: 8px; color: var(--red); border: 3px dashed var(--red); padding: 2px 18px; border-radius: 10px; }
+.code { font-family: var(--font-display); font-weight: 400; font-size: 44px; letter-spacing: 8px; color: var(--red); border: 3px dashed var(--red); padding: 2px 18px; border-radius: 10px; }
 .plist { display: flex; flex-direction: column; gap: 3px; min-width: 300px; font-size: 22px; }
 .plist div { display: flex; justify-content: space-between; gap: 18px; border-bottom: 1.5px solid rgba(26,48,192,.25); padding: 2px 8px; }
 .plist .t0 { color: var(--ink); } .plist .t1 { color: var(--red); } .plist .host::after { content: ' (host)'; opacity: .6; font-size: 16px; }
@@ -201,7 +201,7 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 .scoreboard .me { background: rgba(26,48,192,.08); }
 .hud-tr .teamscore { font-size: 26px; } .hud-tr .teamscore b { color: var(--red); }
 .checkpoints { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 10px; font-size: 19px; }
-.checkpoints > span { font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: 1px; opacity: .7; }
+.checkpoints > span { font-family: var(--font-display); font-weight: 400; font-size: 18px; letter-spacing: 1px; opacity: .7; }
 .checkpoints button { font-size: 18px; padding: 4px 13px; }
 .namebox { font-family: var(--font-body); font-size: 20px; width: 150px; color: var(--ink); border: 2px solid var(--ink); border-radius: 6px 8px 5px 7px; background: transparent; padding: 2px 8px; }
 #hud.pad .kbonly, #hud:not(.pad) .padonly { display: none; }
@@ -219,16 +219,16 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 /* ---- menu: two-column doodle spread ---- */
 .spread { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 34px; align-items: start; text-align: left; }
 .spread-hero { padding-right: 26px; border-right: 2px dashed rgba(26, 48, 192, .3); }
-.tagline { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); border: 2px solid var(--red); border-radius: 40px 30px 42px 28px; padding: 3px 14px; transform: rotate(-1.4deg); }
+.tagline { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 400; font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); border: 2px solid var(--red); border-radius: 40px 30px 42px 28px; padding: 3px 14px; transform: rotate(-1.4deg); }
 .tagline .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); }
-.wordmark { font-family: var(--font-display); font-weight: 800; font-size: clamp(52px, 7.4vw, 84px); line-height: .86; margin: 14px 0 0; letter-spacing: -1px; }
+.wordmark { font-family: var(--font-display); font-weight: 400; font-size: clamp(52px, 7.4vw, 84px); line-height: .86; margin: 14px 0 0; letter-spacing: -1px; }
 .wordmark span { display: block; }
 .wordmark span + span { color: var(--red); margin-left: 26px; position: relative; width: max-content; }
 .wordmark span + span::after { content: ''; position: absolute; left: -4px; right: -8px; bottom: 2px; height: 9px; background: rgba(26, 48, 192, .16); border-radius: 60% 40% 55% 45%; transform: rotate(-1.2deg); z-index: -1; }
 .tagline + .wordmark { margin-top: 16px; }
 .hero-sub { font-size: 21px; opacity: .82; margin: 14px 0 0; line-height: 1.35; }
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 7px; padding: 0; margin: 16px 0 0; }
-.chips li { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); border: 2px solid rgba(26, 48, 192, .45); border-radius: var(--wob-c); padding: 2px 11px; background: rgba(255, 255, 255, .5); }
+.chips li { font-family: var(--font-display); font-weight: 400; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); border: 2px solid rgba(26, 48, 192, .45); border-radius: var(--wob-c); padding: 2px 11px; background: rgba(255, 255, 255, .5); }
 .chips li:nth-child(odd) { transform: rotate(-1.2deg); } .chips li:nth-child(even) { transform: rotate(1deg); }
 
 /* number-indexed action cards */
@@ -240,7 +240,7 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 
 /* collapsible doodle drawers (controls / settings) */
 .drawer { margin-top: 16px; border: 2.5px solid var(--ink); border-radius: var(--wob-c); background: rgba(255, 255, 255, .5); overflow: hidden; }
-.drawer > summary { list-style: none; cursor: pointer; font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: 2px; text-transform: uppercase; padding: 7px 15px; display: flex; align-items: center; gap: 10px; }
+.drawer > summary { list-style: none; cursor: pointer; font-family: var(--font-display); font-weight: 400; font-size: 19px; letter-spacing: 2px; text-transform: uppercase; padding: 7px 15px; display: flex; align-items: center; gap: 10px; }
 .drawer > summary::-webkit-details-marker { display: none; }
 .drawer > summary::after { content: '+'; margin-left: auto; font-size: 22px; line-height: 1; color: var(--red); }
 .drawer[open] > summary { border-bottom: 2px dashed rgba(26, 48, 192, .3); }
@@ -252,14 +252,14 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 
 /* ---- pause: sticky-note stack ---- */
 .sticky { display: inline-block; background: #fff9d8; border: 3px solid var(--ink); border-radius: var(--wob-a); box-shadow: var(--lift); padding: 10px 26px 8px; transform: rotate(-1.6deg); margin-bottom: 16px; }
-.sticky .tag { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); }
-.sticky h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(48px, 6.6vw, 76px); line-height: .92; margin: 2px 0 0; letter-spacing: 2px; }
+.sticky .tag { font-family: var(--font-display); font-weight: 400; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--red); }
+.sticky h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 6.6vw, 76px); line-height: .92; margin: 2px 0 0; letter-spacing: 2px; }
 .sticky .sub { font-size: 19px; opacity: .8; margin: 4px 0 0; }
 .pstats { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 0 0 18px; }
 .pstat { min-width: 116px; border: 2.5px solid var(--ink); border-radius: var(--wob-c); background: var(--paper-hi); padding: 5px 16px 7px; transform: rotate(-.8deg); }
 .pstat:nth-child(2) { transform: rotate(1.1deg); } .pstat:nth-child(3) { transform: rotate(-.4deg); }
-.pstat span { display: block; font-family: var(--font-display); font-weight: 700; font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; opacity: .68; }
-.pstat b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1.1; }
+.pstat span { display: block; font-family: var(--font-display); font-weight: 400; font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; opacity: .68; }
+.pstat b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1.1; }
 .pstat.hot { border-color: var(--red); box-shadow: 4px 4px 0 rgba(208, 32, 48, .18); }
 .pstat.hot b { color: var(--red); }
 .pact { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
@@ -284,10 +284,10 @@ canvas#c { position: fixed; inset: 0; width: 100vw; height: 100vh; display: bloc
 .online .hint { font-size: 17px; opacity: .7; max-width: 520px; text-align: center; }
 .online .code { font-size: 52px; letter-spacing: 10px; }
 .online .plist { min-width: 340px; }
-.online .plist .host span:first-child::after { content: ' · host'; opacity: .6; font-size: 16px; }
+.online .plist .host span:first-child::after { content: ' Â· host'; opacity: .6; font-size: 16px; }
 .online .plist .me { background: rgba(26,48,192,.08); }
 .board { position: absolute; left: 50%; top: 18%; transform: translateX(-50%) rotate(-.5deg); background: rgba(250,247,238,.94); border: 3px solid var(--ink); border-radius: var(--wob-a); padding: 12px 22px; min-width: 380px; font-size: 24px; color: var(--ink); z-index: 5; }
-.board h3 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 800; font-size: 28px; text-align: center; letter-spacing: 2px; }
+.board h3 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 400; font-size: 28px; text-align: center; letter-spacing: 2px; }
 .board div { display: flex; justify-content: space-between; gap: 24px; padding: 2px 8px; border-bottom: 1.5px solid rgba(26,48,192,.25); }
 .board div.me { background: rgba(26,48,192,.1); }
 .board .foot { font-size: 16px; opacity: .7; justify-content: center; border: 0; margin-top: 6px; }
