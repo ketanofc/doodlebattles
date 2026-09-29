@@ -1,8 +1,8 @@
 # DOODLE BATTLES ✏️🎮
 
-A notebook-styled 3D FPS built in Three.js and Web Audio API, featuring PUBG Mobile-inspired battlegrounds:
-- **Doodle Shooter Map**: PUBG Mobile School, swimming pool hall, and 3-story apartments.
-- **Sanhok Temple Map**: PUBG Mobile Sanhok Ruins step-pyramid temple and overgrown jungle canopy.
+A notebook-styled 3D FPS built in Three.js and Web Audio API, featuring hand-drawn battlegrounds:
+- **Doodle School Map**: school courtyard, swimming pool hall, and 3-story apartments.
+- **Doodle Jungle Temple Map**: ruined stone temple, stepped courtyard, and overgrown jungle canopy.
 - **Weapons**: Automatic Rifle with reflex red dot sight, Shotgun, Sniper with custom scope, Katana with bullet parry/reflection and focus slash, Grenades, and Grappling Hook.
 - **Procedural Audio**: Fully synthesized sound effects and procedural notebook chiptune music.
 
