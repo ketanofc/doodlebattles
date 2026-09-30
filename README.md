@@ -153,6 +153,15 @@ your thumb already rests.
 The system buttons sit on the opposite side from the combat cluster, so your
 thumb never has to cross the screen mid-fight.
 
+The buttons are translucent circles drawn in the same ink-and-paper style as the
+rest of the game, so they read as part of the drawing rather than as a platform
+overlay sitting on top of it. Every one is at least 32px across, and the
+adjacent pairs keep a gap of at least 1.4 layout units, so no button ever
+overlaps another or leaves the screen.
+
+Movement, look and any button all work at the same time, so you can run, turn
+and shoot without lifting a thumb.
+
 The layer is gated on a real coarse pointer, so a desktop browser never sees
 it. A hybrid machine — a laptop or tablet with both a touchscreen and a mouse —
 keeps its keyboard layout until you actually touch the screen, at which point
@@ -167,10 +176,12 @@ Notes:
 
 - The stick is a floating joystick: it appears wherever your thumb lands in the
   left half, and its origin follows if you drag past the rim.
-- Two fingers work at once, so you can walk while firing or grappling.
-- On a phone held upright the game asks you to rotate, because a 3D shooter
-  needs the long axis. Tablets are left alone; a tablet held upright is big
-  enough to play.
+- Three fingers work at once, so you can move, turn and shoot at the same time
+  without lifting a thumb.
+- Landscape is the preferred orientation. Any touch device held upright gets a
+  "Rotate your device to landscape mode" prompt, phones and tablets alike, since
+  portrait splits the screen between the stick and the combat cluster and every
+  layout rule assumes the long axis is horizontal.
 - On Android the game asks for fullscreen on your first tap, which removes the
   browser bars and gives the canvas the whole screen.
 - On iOS, use **Share → Add to Home Screen** to get a fullscreen, installable
@@ -387,10 +398,13 @@ issues. The art, audio, and game design are all original to this project.
 - [x] Floating stick feeds movement, drag feeds look, auto-sprint works
 - [x] Every action has a button, and input cannot leak into the pause panel
 - [x] Haptic tick on button press where the device supports it
-- [x] Rotate prompt on phones held upright
+- [x] Move, look and a button all live at the same time (three fingers)
+- [x] Rotate prompt on any touch device held upright
 - [x] Fullscreen on first tap, with the iOS add-to-home-screen route as fallback
+- [x] Renderer, render targets and camera aspect refit on fullscreen change
+- [x] Safe-area insets respected for notches and home indicators
+- [x] Device pixel ratio capped, and lowered further if the frame rate drops
 - [x] Installable PWA with fullscreen display and safe-area insets
-- [x] Render scale adapts when the frame rate drops
 
 ## Desktop
 

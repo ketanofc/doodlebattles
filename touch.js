@@ -130,8 +130,8 @@
     girar.id = 'girar';
     girar.className = 'oculto';
     girar.innerHTML =
-      '<div><div class="g-icon"></div><h2>Rotate</h2>' +
-      '<p>Turn the phone sideways to fight.</p></div>';
+      '<div><div class="g-icon"></div><h2>Rotate your device</h2>' +
+      '<p>Rotate your device to landscape mode.</p></div>';
     doc.body.appendChild(girar);
 
     const hint = doc.createElement('div');
@@ -167,14 +167,17 @@
 
     /* ------------------------------------------------------------ orientation
 
-     * A 3D shooter needs the long axis. Phones get a prompt; a tablet held
-     * upright is big enough to play and nagging about it would be wrong. */
+     * A 3D shooter needs the long axis, so landscape is the preferred
+     * orientation and any touch device held upright gets the prompt. This used
+     * to exempt tablets, on the grounds that one held upright is big enough to
+     * play; portrait on a tablet is still a 46/54 split between the stick and
+     * the combat cluster once browser chrome is subtracted, and every layout
+     * rule in touch.css assumes the long axis is horizontal. */
     function orientCheck() {
       const vv = window.visualViewport;
       const w = vv ? vv.width : window.innerWidth;
       const h = vv ? vv.height : window.innerHeight;
-      const phoneish = Math.min(w, h) < 560;
-      girar.classList.toggle('oculto', !(phoneish && h > w));
+      girar.classList.toggle('oculto', !(h > w));
     }
 
     function relayout() { applyUnit(); orientCheck(); }
@@ -644,8 +647,12 @@
     const dse = doc.documentElement;
     const requestFS = dse.requestFullscreen || dse.webkitRequestFullscreen;
     if (requestFS && !standalone) {
+      let asked = false;
       const goFS = () => {
-        /* One shot. A second call throws and would only add noise. */
+        /* One shot. A second call throws and would only add noise, and the
+         * browser has already refused once, so there is nothing to retry. */
+        if (asked) return;
+        asked = true;
         doc.removeEventListener('pointerdown', goFS, true);
         try {
           const p = dse.requestFullscreen || dse.webkitRequestFullscreen;
@@ -656,6 +663,27 @@
       };
       doc.addEventListener('pointerdown', goFS, true);
     }
+
+    /* Fullscreen changes the reported viewport size, and the game rebuilds its
+     * render targets from it. It already listens for window "resize", but not
+     * every browser fires one when fullscreen is entered or exited -- notably
+     * when only the system bars come and go. Dispatch one so the renderer and
+     * camera aspect follow regardless, which is what keeps a half-swapped or
+     * stretched canvas from being possible. */
+    const afterFS = () => {
+      relayout();
+      /* Prefer the game's own resize: it knows how to rebuild the render
+       * targets and the post-process resolution alongside the camera aspect. */
+      try {
+        const r = window.__ds && window.__ds.renderer;
+        if (r && typeof r.resize === 'function') { r.resize(); return; }
+      } catch (err) { /* fall through to the event */ }
+      /* Fall back to a synthetic resize for the game's own window listener. */
+      try { window.dispatchEvent(new Event('resize')); } catch (err) { /* ignore */ }
+    };
+    doc.addEventListener('fullscreenchange', afterFS);
+    /* Safari still exposes the prefixed name on some versions. */
+    doc.addEventListener('webkitfullscreenchange', afterFS);
 
     /* Signals that a touch session is live, for anything watching the page. */
     root.classList.add('tactil-listo');
