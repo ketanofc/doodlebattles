@@ -119,16 +119,21 @@ The game swaps control prompts automatically when it detects a gamepad.
 
 ### Touch Screen
 
-Phones and tablets get an on-screen control layer instead, laid out like a
-battle-royale shooter: the movement stick on the left, every combat action on
-the right, and the oversized **FIRE** button in the bottom-right corner where
-your thumb already rests.
+Phones and tablets get an on-screen control layer instead: the movement stick
+on the left, every combat action on the right, and the oversized **FIRE** button
+in the middle of them, with the other actions flanking it in two columns.
 
 ```
-        nade    duck    gun
-        dash    jump    climb
-        melee   reload  scope
-        ---- fire ----
+        climb                             nade
+        jump         .----------.        dash
+     .---.---.      |   FIRE   |       .---.---.
+     | reload |     |          |       | melee  |
+     '---'---'      '----------'       '---'---'
+        duck          .----.          aim
+     .---.---.      '----'
+     | jump  |
+     '---'---'
+        climb
 ```
 
 Every control is a drawn icon, not a word. A 45px circle cannot hold "reload" at
@@ -139,30 +144,47 @@ a size you can read mid-firefight, so the labels went and the buttons grew.
 | Move                  | Left half of the screen — a stick appears where you touch |
 | Sprint                | Push the stick most of the way out                     |
 | Look / Aim            | Drag anywhere on the right half                        |
-| Fire / Slash          | **◎** crosshair — hold                                 |
-| Aim / Katana Guard    | **⌐¬** scope brackets — hold                            |
-| Reload                | **↻** circular arrow                                    |
-| Grapple               | **ladder** — hold to reel, tap to swing                |
-| Switch Weapon         | **⇄** crossed arrows; the name you will switch to is spelled out on the left |
-| Jump / Wall Jump      | **↑** arrow up                                          |
-| Slide / Air Dash      | **↓** arrow down onto the floor                        |
-| Quick Katana Slash    | **blade**                                              |
-| Dash-Slash            | **»** speed lines — once the focus gauge is lit        |
-| Grenade               | **bomb** — hold to throw further                       |
+| Fire / Slash          | **◎** crosshair, dead centre — hold                    |
+| Aim / Katana Guard    | **⌐¬** scope brackets, centre bottom — hold            |
+| Reload                | **↻** circular arrow, centre top                       |
+| Grapple               | **ladder**, outer column top — hold to reel, tap to swing |
+| Jump / Wall Jump      | **↑** arrow up, outer column middle                    |
+| Slide / Air Dash      | **↓** arrow down onto the floor, outer column bottom   |
+| Quick Katana Slash    | **blade**, near column bottom                          |
+| Dash-Slash            | **»** speed lines, near column middle — once the focus gauge is lit |
+| Grenade               | **bomb**, near column top — hold to throw further      |
+| Switch Weapon         | **⇄** crossed arrows, top left; the name you will switch to is spelled out under it |
 | Scoreboard            | **☰** lines, top left — hold (online)                   |
 | Music                 | **♪** note, top left                                    |
 | Button size           | **⛭** sliders, top left                                 |
 | Pause                 | **❙❙** bars, top left                                   |
 
+Switch-weapon is in the top-left system row rather than in the cluster. A 3×3
+grid minus its centre has exactly eight free slots, which is precisely the eight
+secondary actions that are left once FIRE and switch are accounted for, so
+switch had to go somewhere. It is a low-frequency action — once a fight, not
+during one — and the system row is the one part of the layer no thumb covers, so
+it costs nothing there.
+
 The system buttons sit on the opposite side from the combat cluster, so your
-thumb never has to cross the screen mid-fight.
+thumb never has to cross the screen mid-fight. They also ignore the size slider,
+because the slider is for the combat buttons and the fit calculation exists to
+keep the cluster clear of the movement stick, which this corner is nowhere near.
 
 The buttons are translucent circles drawn in the same ink-and-paper style as the
 rest of the game, so they read as part of the drawing rather than as a platform
 overlay sitting on top of it. The icons are stroked paths rather than a font, so
 they cannot fail to load and they recolour with the pressed state on their own.
 Every one is at least 32px across, and the adjacent pairs keep a gap of at least
-2.4 layout units, so no button ever overlaps another or leaves the screen.
+2.6 layout units, so no button ever overlaps another or leaves the screen.
+
+**FIRE in the middle has a cost, and it is worth knowing about.** The thumb
+pivots near the bottom-right corner, and centring FIRE moves it from 1.6 layout
+units off that edge to 20.2. It is now the fourth nearest of the nine combat
+buttons by centre distance, behind melee, aim and dash. If it turns out to be a
+stretch while you are moving, the fix is to drop it into the bottom-centre cell
+and give the centre column three buttons above it, which has to be paid for out
+of the flanking columns.
 
 **Button size is yours to set.** The slider button in the top-left opens a
 control you can drag from 75% to 135%. Two rules apply to it:
@@ -172,7 +194,7 @@ control you can drag from 75% to 135%. Two rules apply to it:
   the screen has next to the movement zone, and if your number is bigger than
   the screen allows, the buttons come out smaller than you asked and the readout
   tells you the real percentage. On a phone held upright, 135% will be refused
-  and you will see roughly 72% next to the slider. A combat button sitting on
+  and you will see roughly 76% next to the slider. A combat button sitting on
   top of the movement stick is a worse outcome than a smaller button.
 
 The 14 buttons are sized against the live viewport, so the same layout works in
@@ -411,7 +433,7 @@ issues. The art, audio, and game design are all original to this project.
 - [x] Control layer appears on touch devices and stays off on desktop
 - [x] Late arms on first real touch, so a tablet with a paired mouse still gets
       controls while a hybrid laptop keeps its keyboard
-- [x] Combat cluster on the right with an oversized FIRE, system buttons opposite
+- [x] Combat cluster on the right with an oversized centred FIRE, system buttons opposite
 - [x] All 14 controls are drawn icons, no text labels, every one with an accessible name
 - [x] Button size adjustable 75-135%, remembered across sessions, clamped to what the screen can fit
 - [x] Layout fits landscape phone and tablet screens, portrait included

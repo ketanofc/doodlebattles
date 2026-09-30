@@ -97,7 +97,17 @@
     '<div class="twpn" aria-live="polite"></div>',
 
     /* System row, top-LEFT. The whole right side belongs to combat controls so
-       the thumb never has to cross the screen mid-fight. */
+       the thumb never has to cross the screen mid-fight.
+
+       Switch-weapon lives here rather than in the cluster. Moving FIRE to the
+       centre of the cluster made the cluster a strict 3x3 minus its middle
+       cell, and a tenth combat button would have meant a tenth slot: either an
+       asymmetric column that reads as a mistake, or shrinking every button to
+       make room. Switch is a low-frequency action that fires once between
+       firefights, and the system row is the one part of the layer no thumb
+       covers, so it costs nothing there. It also has a readout, which already
+       had a home in this corner. */
+    '<button type="button" class="tb tb-tl tb-slot" aria-label="Switch weapon">' + ic('slot') + '</button>',
     '<button type="button" class="tb tb-tl tb-pausa" aria-label="Pause">' + ic('pausa') + '</button>',
     '<button type="button" class="tb tb-tl tb-score" aria-label="Scoreboard">' + ic('score') + '</button>',
     '<button type="button" class="tb tb-tl tb-music" aria-label="Toggle music">' + ic('music') + '</button>',
@@ -111,16 +121,22 @@
       '<output class="tset-v" id="tsizev" for="tsize">100%</output>' +
     '</div>',
 
-    /* Combat cluster, all on the right. FIRE is the oversized anchor in the
-       bottom-right corner; the column beside it holds the other primary
-       actions (scope, reload, climb) nearest the thumb. */
+    /* Combat cluster, all on the right. FIRE is the oversized centre of the
+       cluster with the eight secondary actions flanking it in two columns of
+       three, which is why switch-weapon is not here but in the system row
+       above: a 3x3 minus its middle cell has exactly eight free slots.
+
+       DOM order is the tab order, so it runs centre-column first, then the
+       right-hand column nearest the thumb, then the left. It does not match the
+       visual reading order, because the visual order is arbitrary and the tab
+       order should put the two buttons a right-thumbed player reaches first at
+       the front. */
     '<button type="button" class="tb tb-fire" aria-label="Fire">' + ic('fire') + '</button>',
     '<button type="button" class="tb tb-aim" aria-label="Aim down sights (scope)">' + ic('aim') + '</button>',
     '<button type="button" class="tb tb-reload" aria-label="Reload">' + ic('reload') + '</button>',
-    '<button type="button" class="tb tb-grapple" aria-label="Climb / grapple (Q)">' + ic('grapple') + '</button>',
-    '<button type="button" class="tb tb-slot" aria-label="Switch weapon">' + ic('slot') + '</button>',
-    '<button type="button" class="tb tb-jump" aria-label="Jump">' + ic('jump') + '</button>',
     '<button type="button" class="tb tb-duck" aria-label="Crouch">' + ic('duck') + '</button>',
+    '<button type="button" class="tb tb-jump" aria-label="Jump">' + ic('jump') + '</button>',
+    '<button type="button" class="tb tb-grapple" aria-label="Climb / grapple (Q)">' + ic('grapple') + '</button>',
     '<button type="button" class="tb tb-melee" aria-label="Melee">' + ic('melee') + '</button>',
     '<button type="button" class="tb tb-dash" aria-label="Dash">' + ic('dash') + '</button>',
     '<button type="button" class="tb tb-nade" aria-label="Grenade">' + ic('nade') + '</button>'
@@ -158,8 +174,8 @@
      ZONE_W is 0.52 rather than the 0.54 the look zone actually occupies, on
      purpose: that leaves a visible strip of dead space between the two halves
      so a thumb sliding across the screen never grabs a button by accident. */
-  const CLUSTER_W = 62.4;
-  const CLUSTER_H = 42.4;
+   const CLUSTER_W = 58.8;
+   const CLUSTER_H = 56.8;
   const ZONE_W = 0.52;
 
   /* Player-chosen button size, as a percentage of the fitted base. It is a

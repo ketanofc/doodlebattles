@@ -242,7 +242,7 @@ void main() {
   <div class="col-touch"><div class="colhead">TOUCH</div>
     <div>Every button is a drawn icon. Names below are just a way to point at one.</div>
     <div><b>Left stick</b> move &nbsp; <b>Drag right side</b> look &nbsp; <b>Push stick to edge</b> sprint</div>
-    <div><b>FIRE</b> fire / slash &nbsp; <b>SCOPE</b> aim down sights / block</div>
+    <div><b>FIRE</b> fire / slash, in the middle of the right side &nbsp; <b>SCOPE</b> aim down sights / block</div>
     <div><b>JUMP</b> jump (again on a wall = wall jump)</div>
     <div><b>JUMP</b> again in the air = double jump</div>
     <div><b>DUCK</b> slide on the ground · <b>DASH</b> air dash in the air</div>
