@@ -131,33 +131,53 @@ your thumb already rests.
         ---- fire ----
 ```
 
+Every control is a drawn icon, not a word. A 45px circle cannot hold "reload" at
+a size you can read mid-firefight, so the labels went and the buttons grew.
+
 | Action                | Control                                                |
 | --------------------- | ------------------------------------------------------ |
 | Move                  | Left half of the screen — a stick appears where you touch |
 | Sprint                | Push the stick most of the way out                     |
 | Look / Aim            | Drag anywhere on the right half                        |
-| Fire / Slash          | **FIRE** — hold                                        |
-| Aim / Katana Guard    | **SCOPE** — hold                                       |
-| Reload                | **RELOAD**                                             |
-| Grapple               | **CLIMB** — hold to reel, tap to swing                 |
-| Switch Weapon         | **GUN** — shows the weapon you will switch to          |
-| Jump / Wall Jump      | **JUMP**                                               |
-| Slide / Air Dash      | **DUCK** — hold                                        |
-| Quick Katana Slash    | **MELEE**                                              |
-| Dash-Slash            | **DASH** — once the focus gauge is lit                 |
-| Grenade               | **NADE** — hold to throw further                       |
-| Scoreboard            | **SCORE** — hold (online), top left                    |
-| Music                 | **♪**, top left                                         |
-| Pause                 | **❙❙**, top left                                       |
+| Fire / Slash          | **◎** crosshair — hold                                 |
+| Aim / Katana Guard    | **⌐¬** scope brackets — hold                            |
+| Reload                | **↻** circular arrow                                    |
+| Grapple               | **ladder** — hold to reel, tap to swing                |
+| Switch Weapon         | **⇄** crossed arrows; the name you will switch to is spelled out on the left |
+| Jump / Wall Jump      | **↑** arrow up                                          |
+| Slide / Air Dash      | **↓** arrow down onto the floor                        |
+| Quick Katana Slash    | **blade**                                              |
+| Dash-Slash            | **»** speed lines — once the focus gauge is lit        |
+| Grenade               | **bomb** — hold to throw further                       |
+| Scoreboard            | **☰** lines, top left — hold (online)                   |
+| Music                 | **♪** note, top left                                    |
+| Button size           | **⛭** sliders, top left                                 |
+| Pause                 | **❙❙** bars, top left                                   |
 
 The system buttons sit on the opposite side from the combat cluster, so your
 thumb never has to cross the screen mid-fight.
 
 The buttons are translucent circles drawn in the same ink-and-paper style as the
 rest of the game, so they read as part of the drawing rather than as a platform
-overlay sitting on top of it. Every one is at least 32px across, and the
-adjacent pairs keep a gap of at least 1.4 layout units, so no button ever
-overlaps another or leaves the screen.
+overlay sitting on top of it. The icons are stroked paths rather than a font, so
+they cannot fail to load and they recolour with the pressed state on their own.
+Every one is at least 32px across, and the adjacent pairs keep a gap of at least
+2.4 layout units, so no button ever overlaps another or leaves the screen.
+
+**Button size is yours to set.** The slider button in the top-left opens a
+control you can drag from 75% to 135%. Two rules apply to it:
+
+- Your choice is remembered, so it is still there next session.
+- It is a preference, not a promise. The buttons are sized to fit whatever room
+  the screen has next to the movement zone, and if your number is bigger than
+  the screen allows, the buttons come out smaller than you asked and the readout
+  tells you the real percentage. On a phone held upright, 135% will be refused
+  and you will see roughly 72% next to the slider. A combat button sitting on
+  top of the movement stick is a worse outcome than a smaller button.
+
+The 14 buttons are sized against the live viewport, so the same layout works in
+portrait, landscape, and while iOS browser bars collapse. There is no per-device
+breakpoint to fall out of date.
 
 Movement, look and any button all work at the same time, so you can run, turn
 and shoot without lifting a thumb.
@@ -392,11 +412,15 @@ issues. The art, audio, and game design are all original to this project.
 - [x] Late arms on first real touch, so a tablet with a paired mouse still gets
       controls while a hybrid laptop keeps its keyboard
 - [x] Combat cluster on the right with an oversized FIRE, system buttons opposite
+- [x] All 14 controls are drawn icons, no text labels, every one with an accessible name
+- [x] Button size adjustable 75-135%, remembered across sessions, clamped to what the screen can fit
 - [x] Layout fits landscape phone and tablet screens, portrait included
 - [x] All tap targets are at least 32px and none overlap
+- [x] Combat cluster never reaches into the movement zone at any size setting
 - [x] Page does not scroll or rubber-band while playing
 - [x] Floating stick feeds movement, drag feeds look, auto-sprint works
 - [x] Every action has a button, and input cannot leak into the pause panel
+- [x] Dragging the size slider does not turn the camera
 - [x] Haptic tick on button press where the device supports it
 - [x] Move, look and a button all live at the same time (three fingers)
 - [x] Rotate prompt on any touch device held upright

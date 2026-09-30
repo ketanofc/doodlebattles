@@ -45,32 +45,85 @@
 
   /* ------------------------------------------------------------------ markup */
 
-  /* The two long words break over two lines: a 32px circle cannot hold six
-     characters on one row without shrinking the label past legibility. */
+  /* Every action is a drawn glyph, not a word.
+
+     Words were the reason the old cluster was cramped. "RELOAD" will not sit on
+     one line inside a 40px circle at a size you can read mid-firefight, so it
+     either wrapped to two lines or forced the label below legibility, and the
+     columns then needed 4.8u of daylight between them to keep the text from
+     touching. A glyph is square and has no minimum, so the columns can close up
+     and every button in the cluster gets bigger instead.
+
+     All of them are 24x24 stroked paths inheriting currentColor, so a button
+     recolours for free when the pressed state or the theme changes it, and none
+     of them is a font that might not be there on a locked-down device. */
+  const ICONS = {
+    /* Crosshair with a filled centre: the universally read "shoot here". */
+    fire: '<circle cx="12" cy="12" r="6.4"/><circle cx="12" cy="12" r="2"/><path d="M12 2.2v3.4M12 18.4v3.4M2.2 12h3.4M18.4 12h3.4"/>',
+    /* Open brackets plus a fine cross: a scope, not a target. Distinguishable
+       from fire at a glance, which is the whole point of separating them. */
+    aim: '<path d="M8.6 4.5h-4v4M15.4 4.5h4v4M8.6 19.5h-4v-4M15.4 19.5h4v-4"/><path d="M12 8.4v7.2M8.4 12h7.2"/>',
+    /* Two opposed arcs with square leaders: reload. */
+    reload: '<path d="M4.2 12.4a7.8 7.8 0 0 1 13.2-5.8l2.3 2.3"/><path d="M20.2 4.2v4.7h-4.7"/><path d="M19.8 11.6a7.8 7.8 0 0 1-13.2 5.8L4.3 15.1"/><path d="M3.8 19.8v-4.7h4.7"/>',
+    /* A ladder, for the climb. */
+    grapple: '<path d="M3.6 20.6h16.8"/><path d="M8 20.6V8.6M16 20.6V8.6"/><path d="M8 12.6h8M8 16.6h8"/>',
+    /* Two arrows crossing: switch, not reload. */
+    slot: '<path d="M3.4 8.4h13.4l-3.4-3.4"/><path d="M20.6 15.6H7.2l3.4 3.4"/>',
+    jump: '<path d="M12 19.6V5.4"/><path d="M7 10.4 12 5.4l5 5"/>',
+    /* Arrow down onto a floor line: crouch. The mirror of jump, so the two read
+       as the same axis and stay apart by direction alone. */
+    duck: '<path d="M12 4.4v14.2"/><path d="M7 13.6 12 18.6l5-5"/><path d="M3.4 20.6h17.2"/>',
+    melee: '<path d="M20.6 3.4 11 13l-1.5 4.5-4.5 1.5L6.5 14.5 16.1 4.9l4.5-1.5Z"/><path d="M3.2 20.8l3.4-3.4"/>',
+    dash: '<path d="M3.4 7.4h5.6M3.4 12h8.2M3.4 16.6h5.6"/><path d="M13.4 5.6 20 12l-6.6 6.4"/>',
+    nade: '<circle cx="12" cy="14.6" r="5.6"/><path d="M9.3 8.8 12 6.2l2.7 2.6"/><path d="M12 6.2V3.4"/><path d="M12 3.4h4.2"/>',
+    pausa: '<path d="M9.2 4.8v14.4M14.8 4.8v14.4"/>',
+    score: '<rect x="3.8" y="4.2" width="16.4" height="15.6" rx="2.4"/><path d="M8 9h8M8 12.6h8M8 16.2h4.6"/>',
+    music: '<path d="M9.4 18.2V5.2l9.4-2.1v12.9"/><circle cx="6.6" cy="18.2" r="2.6"/><circle cx="16" cy="15.9" r="2.6"/>',
+    /* Two sliders: the control-settings affordance. */
+    size: '<path d="M3.6 8h9.6M17.6 8h2.8M3.6 16h3.4M11.4 16h9"/><circle cx="15.4" cy="8" r="2.4"/><circle cx="9.2" cy="16" r="2.4"/>'
+  };
+
+  const ic = name =>
+    '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + ICONS[name] + '</svg>';
+
   const LAYER_HTML = [
     '<div class="tz-izq" aria-hidden="true"></div>',
     '<div class="tz-der" aria-hidden="true"></div>',
     '<div class="tpalanca" aria-hidden="true"></div>',
 
+    /* Current weapon. It used to be a label inside the switch button, which
+       cannot hold a word and a glyph at a readable size at the same time, so it
+       gets its own line in the left column where there is room to spell it. */
+    '<div class="twpn" aria-live="polite"></div>',
+
     /* System row, top-LEFT. The whole right side belongs to combat controls so
        the thumb never has to cross the screen mid-fight. */
-    '<button type="button" class="tb tb-tl tb-pausa" aria-label="Pause">&#10073;&#10073;</button>',
-    '<button type="button" class="tb tb-tl tb-score" aria-label="Scoreboard">SCORE</button>',
-    '<button type="button" class="tb tb-tl tb-music" aria-label="Toggle music">&#9834;</button>',
+    '<button type="button" class="tb tb-tl tb-pausa" aria-label="Pause">' + ic('pausa') + '</button>',
+    '<button type="button" class="tb tb-tl tb-score" aria-label="Scoreboard">' + ic('score') + '</button>',
+    '<button type="button" class="tb tb-tl tb-music" aria-label="Toggle music">' + ic('music') + '</button>',
+    '<button type="button" class="tb tb-tl tb-size" aria-label="Button size" aria-expanded="false">' + ic('size') + '</button>',
+
+    /* Size control. Lives in the layer rather than in the pause menu because
+       the thing it changes has to be visible while it is being changed. */
+    '<div class="tset" role="group" aria-label="Touch control size">' +
+      '<label class="tset-l" for="tsize">Button size</label>' +
+      '<input class="tset-r" id="tsize" type="range" min="75" max="135" step="5" value="100" aria-label="Touch button size">' +
+      '<output class="tset-v" id="tsizev" for="tsize">100%</output>' +
+    '</div>',
 
     /* Combat cluster, all on the right. FIRE is the oversized anchor in the
        bottom-right corner; the column beside it holds the other primary
-       actions (SCOPE, RELOAD, CLIMB) nearest the thumb. */
-    '<button type="button" class="tb tb-fire" aria-label="Fire">FIRE</button>',
-    '<button type="button" class="tb tb-aim" aria-label="Aim down sights (scope)">SCOPE</button>',
-    '<button type="button" class="tb tb-reload" aria-label="Reload">RELOAD</button>',
-    '<button type="button" class="tb tb-grapple" aria-label="Climb / grapple (Q)">CLIMB</button>',
-    '<button type="button" class="tb tb-slot tb-gun" aria-label="Switch weapon"><span class="t-lbl">gun</span></button>',
-    '<button type="button" class="tb tb-jump" aria-label="Jump">JUMP</button>',
-    '<button type="button" class="tb tb-duck" aria-label="Crouch">DUCK</button>',
-    '<button type="button" class="tb tb-melee" aria-label="Melee">MELEE</button>',
-    '<button type="button" class="tb tb-dash" aria-label="Dash">DASH</button>',
-    '<button type="button" class="tb tb-nade" aria-label="Grenade">NADE</button>'
+       actions (scope, reload, climb) nearest the thumb. */
+    '<button type="button" class="tb tb-fire" aria-label="Fire">' + ic('fire') + '</button>',
+    '<button type="button" class="tb tb-aim" aria-label="Aim down sights (scope)">' + ic('aim') + '</button>',
+    '<button type="button" class="tb tb-reload" aria-label="Reload">' + ic('reload') + '</button>',
+    '<button type="button" class="tb tb-grapple" aria-label="Climb / grapple (Q)">' + ic('grapple') + '</button>',
+    '<button type="button" class="tb tb-slot" aria-label="Switch weapon">' + ic('slot') + '</button>',
+    '<button type="button" class="tb tb-jump" aria-label="Jump">' + ic('jump') + '</button>',
+    '<button type="button" class="tb tb-duck" aria-label="Crouch">' + ic('duck') + '</button>',
+    '<button type="button" class="tb tb-melee" aria-label="Melee">' + ic('melee') + '</button>',
+    '<button type="button" class="tb tb-dash" aria-label="Dash">' + ic('dash') + '</button>',
+    '<button type="button" class="tb tb-nade" aria-label="Grenade">' + ic('nade') + '</button>'
   ].join('');
 
   /* Which bag each button writes to, and whether it holds or pulses. "hold" is
@@ -96,6 +149,25 @@
      .tpalanca::after) and must stay in step with it. */
   const STICK_D = 24;       /* ring diameter, in --u */
   const STICK_TRAVEL = 0.4; /* fraction of that diameter a full push covers */
+
+  /* Cluster footprint at --k:1, in --u, and the share of the width it is
+     allowed to take. These must match the --x/--d table in touch.css; the fit
+     calculation divides the room left over by them, so a button can only get
+     bigger while the whole cluster still clears the movement zone.
+
+     ZONE_W is 0.52 rather than the 0.54 the look zone actually occupies, on
+     purpose: that leaves a visible strip of dead space between the two halves
+     so a thumb sliding across the screen never grabs a button by accident. */
+  const CLUSTER_W = 62.4;
+  const CLUSTER_H = 42.4;
+  const ZONE_W = 0.52;
+
+  /* Player-chosen button size, as a percentage of the fitted base. It is a
+     preference, not a promise: applyScale() clamps it to what fits. */
+  const SIZE_MIN = 75;
+  const SIZE_MAX = 135;
+  const SIZE_DEF = 100;
+  const SIZE_KEY = 'doodle_tsize';
 
   const U_MIN = 2.8;
   const U_MAX = 4.4;
@@ -144,7 +216,13 @@
     const zoneL = layer.querySelector('.tz-izq');
     const zoneR = layer.querySelector('.tz-der');
     const stickEl = layer.querySelector('.tpalanca');
-    const slotLabel = layer.querySelector('.tb-gun .t-lbl');
+
+    /* Size control nodes. Held as locals rather than re-queried per frame. */
+    const sizeBtn = layer.querySelector('.tb-size');
+    const cfgEl = layer.querySelector('.tset');
+    const cfgRange = layer.querySelector('#tsize');
+    const cfgOut = layer.querySelector('#tsizev');
+    const weaponNameEl = layer.querySelector('.twpn');
 
     /* ------------------------------------------------------------ unit size
 
@@ -180,7 +258,57 @@
       girar.classList.toggle('oculto', !(h > w));
     }
 
-    function relayout() { applyUnit(); orientCheck(); }
+    /* ------------------------------------------------------------ button size
+
+     * The player picks a size, the screen decides how much of it they get.
+
+     * --k is the fitted scale, and it is the smaller of two things: whatever
+     * the player asked for, and the largest scale at which the whole cluster
+     * still fits in the space next to the movement zone. That order matters.
+     * Asking for 135% on a phone that only has room for 80% must shrink the
+     * buttons, not push the leftmost column out under the thumb, because
+     * buttons overlapping the stick are worse than buttons that are not quite
+     * the size the player picked.
+
+     * The fit is a division rather than a hand-written media query, so it
+     * follows the browser chrome on iOS, where the usable height changes as the
+     * address bar collapses, and it needs no new breakpoint for a new device.
+     * --k is only ever written to the layer, not to <html>, because the HUD
+     * rules that also read --u must keep the fitted size rather than inheriting
+     * a button-scale factor. */
+    let userSize = SIZE_DEF;
+    try {
+      const stored = parseInt(localStorage.getItem(SIZE_KEY), 10);
+      if (stored >= SIZE_MIN && stored <= SIZE_MAX) userSize = stored;
+    } catch (err) { /* private mode: fall back to the default */ }
+
+    function applyScale() {
+      const vv = window.visualViewport;
+      const w = Math.max(1, vv ? vv.width : window.innerWidth);
+      const u = lastU || U_MAX;
+      /* Room to the left of the movement zone, in --u. The 6px is the same dead
+         strip ZONE_W already leaves, subtracted again so the fit and the
+         visible gap cannot disagree at the boundary. */
+      const roomU = (w * ZONE_W - 6) / u;
+      const fit = Math.min(roomU / CLUSTER_W, 1);
+      const want = userSize / 100;
+      /* Never above 1 either: the fitted scale already uses the whole zone on
+         a tablet, and letting it go past would only push the cluster toward the
+         screen edge for no readability gain. */
+      const k = Math.max(0.55, Math.min(want, fit));
+      layer.style.setProperty('--k', k.toFixed(3));
+      /* Tell the player what they actually got, so a clamped value reads as
+         the screen's doing and not as a broken slider. */
+      const shown = Math.round(k * 100);
+      if (cfgOut) cfgOut.textContent = shown + '%';
+      if (cfgRange && parseInt(cfgRange.value, 10) !== userSize) {
+        cfgRange.value = String(userSize);
+      }
+      sizeBtn && sizeBtn.setAttribute(
+        'aria-label', 'Button size, currently ' + shown + '%');
+    }
+
+    function relayout() { applyUnit(); applyScale(); orientCheck(); }
 
     /* ------------------------------------------------------------ HUD nodes
 
@@ -218,6 +346,7 @@
       layer.classList.toggle('oculto', want);
       if (want) {
         releaseAll();
+        closeCfgOnHide();
       } else {
         hint.classList.remove('mostrar');
       }
@@ -522,6 +651,7 @@
     doc.addEventListener('visibilitychange', () => {
       if (!doc.hidden) return;
       releaseAll();
+      closeCfgOnHide();
       /* Backgrounding mid-fight should not cost a run, so pulse pause and let
        * the frame loop take the same path the Esc key takes. */
       pulse('keys', 'pause');
@@ -545,8 +675,64 @@
       const t = (weaponEl.textContent || '').trim();
       if (!t || t === lastWeapon) return;
       lastWeapon = t;
-      if (slotLabel) slotLabel.textContent = t.toLowerCase();
+      if (weaponNameEl) weaponNameEl.textContent = t.toLowerCase();
     }
+
+    /* -------------------------------------------------------- size control
+
+     * The panel sits in the layer, above the buttons, and only exists while it
+     * is open. A range input is used rather than a row of presets because the
+     * whole point is that the player can stop at whatever size suits their
+     * hands, and a slider also tells them there is more room in both
+     * directions.
+
+     * The slider is native so it inherits the platform's own touch handling,
+     * which is a large part of why a range input is easier to get right on a
+     * phone than a custom drag would be. The one thing it does not do by
+     * itself is stop the game reading the drag as a look, so pointerdown is
+     * captured and killed on the panel. Without that, dragging the thumb across
+     * the slider would spin the camera at the same time. */
+    function closeCfg() {
+      cfgEl.classList.remove('open');
+      sizeBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    sizeBtn.addEventListener('pointerdown', e => {
+      /* Stop the tap that opens the panel from also being a look drag. */
+      e.preventDefault();
+      e.stopPropagation();
+      const open = !cfgEl.classList.contains('open');
+      cfgEl.classList.toggle('open', open);
+      sizeBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      buzz(8);
+    }, true);
+
+    /* input covers mouse, touch and keyboard, so one listener covers all three
+     * and applyScale() is the single place the size is written. */
+    cfgRange.addEventListener('input', () => {
+      const v = Math.max(SIZE_MIN, Math.min(SIZE_MAX, parseInt(cfgRange.value, 10) || SIZE_DEF));
+      userSize = v;
+      try { localStorage.setItem(SIZE_KEY, String(v)); } catch (err) { /* private mode */ }
+      applyScale();
+    });
+
+    /* Swallow pointer events anywhere inside the panel, so neither a slider
+     * drag nor a stray tap on its background reaches the look zone. */
+    cfgEl.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+
+    /* Tapping anywhere else in the layer dismisses it. The layer is a sibling
+     * of #hud, so a tap that closes this can still reach the pause button and
+     * the game menus underneath, which is the behaviour a player expects. */
+    layer.addEventListener('pointerdown', e => {
+      if (cfgEl.classList.contains('open') && !cfgEl.contains(e.target)) closeCfg();
+    });
+
+    /* Opening a menu or backgrounding the app should not leave the panel open
+       behind the pause screen, where there is no way to see or reach it. */
+    const closeCfgOnHide = () => { if (cfgEl.classList.contains('open')) closeCfg(); };
 
     /* ------------------------------------------------------------ quality scaler
 
