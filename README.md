@@ -66,6 +66,17 @@ A Doodle BATTLES run works like this:
 7. Die and the run ends with your wave, kills, and score.
 8. Your best score is remembered for next time.
 
+### Arenas
+
+Three arenas are available in the menu, each with its own cover layout and
+sniper perches:
+
+| Arena | What it is |
+| --- | --- |
+| **DOODLE SCHOOL** | Courtyard, pool hall, and apartments. |
+| **DOODLE JUNGLE TEMPLE** | A ruined temple with a courtyard and canopy. |
+| **DOODLE DOCKYARD** | A container terminal: quayside, moored ship, and a gantry crane you can walk along. |
+
 The controls are intentionally simple for a shooter, and most of the
 difficulty comes from movement, timing, and reading the arena rather than
 from memorising buttons.
