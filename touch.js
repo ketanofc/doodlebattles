@@ -58,15 +58,27 @@
      recolours for free when the pressed state or the theme changes it, and none
      of them is a font that might not be there on a locked-down device. */
   const ICONS = {
-    /* Crosshair with a filled centre: the universally read "shoot here". */
-    fire: '<circle cx="12" cy="12" r="6.4"/><circle cx="12" cy="12" r="2"/><path d="M12 2.2v3.4M12 18.4v3.4M2.2 12h3.4M18.4 12h3.4"/>',
-    /* Open brackets plus a fine cross: a scope, not a target. Distinguishable
-       from fire at a glance, which is the whole point of separating them. */
-    aim: '<path d="M8.6 4.5h-4v4M15.4 4.5h4v4M8.6 19.5h-4v-4M15.4 19.5h4v-4"/><path d="M12 8.4v7.2M8.4 12h7.2"/>',
+    /* A cartridge, nose up: the bullet you are putting into the gun, which is
+       what the button does. This used to be a crosshair, and a crosshair was the
+       wrong picture twice over. It is the universal "shoot here" mark, so it read
+       as "aim here" next to a button whose job is aiming, and it was the one
+       glyph here built from concentric circles, which is also what the scope
+       wants to be. A bullet is a solid vertical silhouette and the scope is a
+       ring, so the two are now told apart by shape alone at a glance. */
+    fire: '<path d="M12 2.6c2.4 2.2 3.8 4.8 3.8 7.6v9.2H8.2v-9.2c0-2.8 1.4-5.4 3.8-7.6Z"/><path d="M8.2 15.2h7.6"/>',
+    /* A scope: rounded body, ring, crosshair, and the four ticks an optic has on
+       its reticle. Rounded rather than the square brackets it replaced, because
+       the brackets read as "expand" or "resize" to most people, and because a
+       ring is what the tube of a scope actually looks like from behind. */
+    aim: '<circle cx="12" cy="12" r="7"/><path d="M12 2.6v3.2M12 18.2v3.2M2.6 12h3.2M18.2 12h3.2"/><path d="M9.6 12h4.8M12 9.6v4.8"/>',
     /* Two opposed arcs with square leaders: reload. */
     reload: '<path d="M4.2 12.4a7.8 7.8 0 0 1 13.2-5.8l2.3 2.3"/><path d="M20.2 4.2v4.7h-4.7"/><path d="M19.8 11.6a7.8 7.8 0 0 1-13.2 5.8L4.3 15.1"/><path d="M3.8 19.8v-4.7h4.7"/>',
-    /* A ladder, for the climb. */
-    grapple: '<path d="M3.6 20.6h16.8"/><path d="M8 20.6V8.6M16 20.6V8.6"/><path d="M8 12.6h8M8 16.6h8"/>',
+    /* Rope over an anchor. The climb action is a grapple, and the old ladder was
+       read as a climbable wall rather than a rope you throw and reel: tapping it
+       to swing is nothing like climbing a ladder. An anchor is the shape the
+       action already describes, and the swag of rope above it is what makes it
+       read as grappling rather than as naval insignia. */
+    grapple: '<path d="M7.2 2.8c3 1.9 6.6 1.9 9.6 0"/><circle cx="12" cy="7.2" r="2.2"/><path d="M12 9.4V21"/><path d="M8.4 12.2h7.2"/><path d="M4.8 14c0 4.3 3.2 7.6 7.2 7.6s7.2-3.3 7.2-7.6"/><path d="M4.8 14 2.9 11.2M19.2 14l1.9-2.8"/>',
     /* Two arrows crossing: switch, not reload. */
     slot: '<path d="M3.4 8.4h13.4l-3.4-3.4"/><path d="M20.6 15.6H7.2l3.4 3.4"/>',
     jump: '<path d="M12 19.6V5.4"/><path d="M7 10.4 12 5.4l5 5"/>',
@@ -91,27 +103,31 @@
     '<div class="tz-der" aria-hidden="true"></div>',
     '<div class="tpalanca" aria-hidden="true"></div>',
 
-    /* Current weapon. It used to be a label inside the switch button, which
-       cannot hold a word and a glyph at a readable size at the same time, so it
-       gets its own line in the left column where there is room to spell it. */
-    '<div class="twpn" aria-live="polite"></div>',
+    /* The current weapon used to be spelled out here, under the system row,
+       because a button cannot hold both a word and a glyph at a readable size.
+       It is gone: the HUD already carries the weapon name in the left column,
+       so this was the same word twice on one screen, and the second copy was
+       the one landing on top of the ammo count. The left column is the HUD's,
+       the right side is the controls', and the weapon is a HUD value. */
 
-    /* System row, top-LEFT. The whole right side belongs to combat controls so
-       the thumb never has to cross the screen mid-fight.
+    /* System row, top-RIGHT, sitting above the combat cluster.
 
-       Switch-weapon lives here rather than in the cluster. Moving FIRE to the
-       centre of the cluster made the cluster a strict 3x3 minus its middle
-       cell, and a tenth combat button would have meant a tenth slot: either an
-       asymmetric column that reads as a mistake, or shrinking every button to
-       make room. Switch is a low-frequency action that fires once between
-       firefights, and the system row is the one part of the layer no thumb
-       covers, so it costs nothing there. It also has a readout, which already
-       had a home in this corner. */
-    '<button type="button" class="tb tb-tl tb-slot" aria-label="Switch weapon">' + ic('slot') + '</button>',
-    '<button type="button" class="tb tb-tl tb-pausa" aria-label="Pause">' + ic('pausa') + '</button>',
-    '<button type="button" class="tb tb-tl tb-score" aria-label="Scoreboard">' + ic('score') + '</button>',
-    '<button type="button" class="tb tb-tl tb-music" aria-label="Toggle music">' + ic('music') + '</button>',
-    '<button type="button" class="tb tb-tl tb-size" aria-label="Button size" aria-expanded="false">' + ic('size') + '</button>',
+       It was top-left, which put it in the same corner as the score and the ammo
+       count. On a phone that corner is where the HUD already stacks three
+       readouts, and a row of five translucent circles landed on top of them:
+       the scoreboard button covered the score, and the weapon readout ran into
+       the ammo line. The whole right side now belongs to the controls and the
+       left column belongs to the HUD, which is the split the layer was trying
+       to have all along and did not.
+
+       Switch-weapon is here rather than in the cluster: a 3x3 minus its middle
+       cell has exactly eight free slots, and that is precisely the eight
+       secondary actions left once FIRE and switch are set aside. */
+    '<button type="button" class="tb tb-sys tb-slot" aria-label="Switch weapon">' + ic('slot') + '</button>',
+    '<button type="button" class="tb tb-sys tb-pausa" aria-label="Pause">' + ic('pausa') + '</button>',
+    '<button type="button" class="tb tb-sys tb-score" aria-label="Scoreboard">' + ic('score') + '</button>',
+    '<button type="button" class="tb tb-sys tb-music" aria-label="Toggle music">' + ic('music') + '</button>',
+    '<button type="button" class="tb tb-sys tb-size" aria-label="Button size" aria-expanded="false">' + ic('size') + '</button>',
 
     /* Size control. Lives in the layer rather than in the pause menu because
        the thing it changes has to be visible while it is being changed. */
@@ -161,10 +177,22 @@
     pausa: { obj: 'keys', key: 'pause' }
   };
 
-  /* Stick geometry. These two numbers are duplicated in touch.css (.tpalanca and
-     .tpalanca::after) and must stay in step with it. */
-  const STICK_D = 24;       /* ring diameter, in --u */
-  const STICK_TRAVEL = 0.4; /* fraction of that diameter a full push covers */
+  /* Stick geometry. These four numbers are duplicated in touch.css (.tpalanca and
+     .tpalanca::after) and must stay in step with it.
+
+     The base is bigger than it was, 30u rather than 24u, which is the PUBG and
+     Free Fire proportion: a stick you can see and aim at beats one that only
+     exists under your thumb, because a visible target is something a thumb can
+     be trained to land on. The knob is 20% of the ring (inset 40%), so travel is
+     0.4 of the diameter and a full push parks the knob exactly on the rim. */
+  const STICK_D = 30;        /* ring diameter, in --u */
+  const STICK_TRAVEL = 0.4;  /* fraction of that diameter a full push covers */
+  /* Where the ring rests when nothing is touching it, in --u from the left and
+     bottom edges. 24u keeps the whole ring inside the 46% movement zone even on
+     a portrait phone, where --u is at its 4.4 ceiling and the zone is only 179px
+     wide. */
+  const STICK_HOME_X = 24;
+  const STICK_HOME_Y = 24;
 
   /* Cluster footprint at --k:1, in --u, and the share of the width it is
      allowed to take. These must match the --x/--d table in touch.css; the fit
@@ -174,8 +202,8 @@
      ZONE_W is 0.52 rather than the 0.54 the look zone actually occupies, on
      purpose: that leaves a visible strip of dead space between the two halves
      so a thumb sliding across the screen never grabs a button by accident. */
-   const CLUSTER_W = 58.8;
-   const CLUSTER_H = 56.8;
+   const CLUSTER_W = 70.4;
+   const CLUSTER_H = 69.4;
   const ZONE_W = 0.52;
 
   /* Player-chosen button size, as a percentage of the fitted base. It is a
@@ -238,7 +266,6 @@
     const cfgEl = layer.querySelector('.tset');
     const cfgRange = layer.querySelector('#tsize');
     const cfgOut = layer.querySelector('#tsizev');
-    const weaponNameEl = layer.querySelector('.twpn');
 
     /* ------------------------------------------------------------ unit size
 
@@ -313,6 +340,11 @@
          screen edge for no readability gain. */
       const k = Math.max(0.55, Math.min(want, fit));
       layer.style.setProperty('--k', k.toFixed(3));
+      /* --ch is the cluster's fitted height, in --u. The system row and the
+         weapon readout sit above the cluster and are pinned off --k:1, so
+         without this they would be placed against a height that changes with the
+         size slider and leave a gap that opens and closes as it is dragged. */
+      layer.style.setProperty('--ch', (CLUSTER_H * k).toFixed(2));
       /* Tell the player what they actually got, so a clamped value reads as
          the screen's doing and not as a broken slider. */
       const shown = Math.round(k * 100);
@@ -324,7 +356,7 @@
         'aria-label', 'Button size, currently ' + shown + '%');
     }
 
-    function relayout() { applyUnit(); applyScale(); orientCheck(); }
+    function relayout() { applyUnit(); applyScale(); orientCheck(); stickHome(); }
 
     /* ------------------------------------------------------------ HUD nodes
 
@@ -448,6 +480,35 @@
 
     const stick = { active: false, id: -1, ox: 0, oy: 0, x: 0, y: 0, radius: 60 };
 
+    /* Park the ring at its home position. Called on boot, on every relayout and
+     * whenever the stick is released, so the ring is always sitting somewhere
+     * predictable between touches. It is drawn but not interactive: pointer
+     * events belong to the zone underneath it. */
+    function stickHome() {
+      if (!stickEl) return;
+      const r = layer.getBoundingClientRect();
+      /* The layer carries .oculto while the menu is up, so it is display:none
+         and its rect is all zeros on the first pass. Reading r.height straight
+         through puts the ring at 0 - 24u, i.e. off the top of the screen, and
+         nothing would move it: relayout() only runs on resize, and the ring
+         becoming visible is not a resize.
+
+         That was invisible while the ring was display:none until first touch,
+         which is exactly why it survived. The ring is now painted from the
+         start, so the first placement has to be right.
+
+         The fallback is the viewport, which exists whether or not the layer
+         does, and the ResizeObserver below re-runs this against the real rect
+         the moment the layer is laid out. */
+      const h = r.height || window.innerHeight || 0;
+      const u = lastU || U_MAX;
+      stick.ox = STICK_HOME_X * u;
+      stick.oy = h - STICK_HOME_Y * u;
+      stickEl.style.left = stick.ox + 'px';
+      stickEl.style.top = stick.oy + 'px';
+      stickEl.style.transform = '';
+    }
+
     function stickMove(x, y) {
       const max = stick.radius;
       let dx = x - stick.ox;
@@ -476,10 +537,8 @@
       stick.id = -1;
       stick.x = 0;
       stick.y = 0;
-      if (stickEl) {
-        stickEl.classList.remove('on');
-        stickEl.style.transform = '';
-      }
+      if (stickEl) stickEl.classList.remove('on');
+      stickHome();
       if (nt) { nt.tmx = 0; nt.tmy = 0; }
     }
 
@@ -526,17 +585,36 @@
 
     /* ------------------------------------------------------------------ wiring */
 
-    /* Left zone: a floating joystick that appears wherever the thumb lands. */
-    if (zoneL) {
-      zoneL.addEventListener('pointerdown', e => {
-        if (stick.active || hidden) return;
-        touchActive();
-        const r = layer.getBoundingClientRect();
-        stick.active = true;
-        stick.id = e.pointerId;
-        stick.ox = e.clientX - r.left;
-        stick.oy = e.clientY - r.top;
-        stick.radius = STICK_TRAVEL * STICK_D * (lastU || U_MAX);
+    /* Left zone: a joystick with a visible home ring, PUBG-style but not
+       rigid. PUBG and Free Fire both keep the stick in one fixed spot so the
+       thumb can be trained to it, and that muscle memory is the point of a
+       visible ring: it is a target. What neither of them does well is refuse to
+       move when you cannot reach that target, so this is a hybrid.
+
+       Land inside the home ring and the base stays exactly where it is, so a
+       player who has learned the position gets identical behaviour every single
+       time. Land outside it and the base follows the thumb, which is what the
+       old always-floating stick did and what a player on a tablet with a short
+       thumb needs. Either way the ring is visible before the touch, so there is
+       always something to aim at. */
+      if (zoneL) {
+        zoneL.addEventListener('pointerdown', e => {
+          if (stick.active || hidden) return;
+          touchActive();
+          const r = layer.getBoundingClientRect();
+          const u = lastU || U_MAX;
+          const tx = e.clientX - r.left;
+          const ty = e.clientY - r.top;
+          /* Compare against the ring's own resting origin rather than
+             recomputing STICK_HOME_Y off the layer height a second time. Two
+             copies of that formula is two places for the hidden-layer case to
+             hide in, and only one of them gets a fallback. */
+          const onHome = Math.hypot(tx - stick.ox, ty - stick.oy) <= (STICK_D * u) / 2;
+          stick.active = true;
+          stick.id = e.pointerId;
+          stick.ox = onHome ? stick.ox : tx;
+          stick.oy = onHome ? stick.oy : ty;
+        stick.radius = STICK_TRAVEL * STICK_D * u;
         if (stickEl) {
           stickEl.classList.add('on');
           stickEl.style.left = stick.ox + 'px';
@@ -544,7 +622,7 @@
           stickEl.style.transform = '';
         }
         try { zoneL.setPointerCapture(e.pointerId); } catch (err) { /* not fatal */ }
-        stickMove(e.clientX - r.left, e.clientY - r.top);
+        stickMove(tx, ty);
         e.preventDefault();
       });
 
@@ -686,13 +764,10 @@
      * change. */
     let lastWeapon = '';
 
-    function syncWeapon() {
-      if (!weaponEl) return;
-      const t = (weaponEl.textContent || '').trim();
-      if (!t || t === lastWeapon) return;
-      lastWeapon = t;
-      if (weaponNameEl) weaponNameEl.textContent = t.toLowerCase();
-    }
+    /* Nothing to mirror any more. The HUD's own weapon readout is the single
+       source, so there is no DOM write to do on a weapon change and this is
+       only here to keep the call sites honest about why. */
+    function syncWeapon() { /* the HUD owns the weapon name */ }
 
     /* -------------------------------------------------------- size control
 
@@ -811,6 +886,15 @@
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', relayout);
       window.visualViewport.addEventListener('scroll', relayout);
+    }
+    /* The window does not resize when the menu is dismissed and #touch loses
+       .oculto, so relayout() on 'resize' alone never runs at the one moment the
+       layer first gets a real box. Observe the layer instead: this is the pass
+       that re-places the stick ring against the actual rect once the game is up,
+       and it also covers the layer being resized by anything the window does not
+       know about, such as a split-screen or desktop freeform resize. */
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(() => stickHome()).observe(layer);
     }
     relayout();
 

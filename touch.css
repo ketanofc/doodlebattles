@@ -58,26 +58,46 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 .tz-izq { left: 0; width: 46%; }
 .tz-der { right: 0; width: 54%; }
 
-/* --------------------------------------------------- floating move stick --- */
+/* ------------------------------------------------------------- move stick --- */
 
-/* Geometry is shared with touch.js: STICK_D and STICK_TRAVEL there must match
-   24 and 0.4 here. The knob is 20% of the ring (inset 40%), which leaves exactly
-   0.4 of the diameter as travel, so a full push parks the knob on the rim
-   instead of sliding out of it. */
+/* Geometry is shared with touch.js: STICK_D, STICK_TRAVEL, STICK_HOME_X and
+   STICK_HOME_Y there must match 30, 0.4, 24 and 24 here. The knob is 20% of the
+   ring (inset 40%), which leaves exactly 0.4 of the diameter as travel, so a
+   full push parks the knob on the rim instead of sliding out of it. The negative
+   margin is a half-diameter, so left and top address the ring's centre and the
+   JS can treat them as the origin.
+
+   Always painted, not shown on touch. PUBG and Free Fire both leave the stick
+   visible and it is the reason this one is visible too: a ring you can see
+   before you touch is a target a thumb can be trained to land on, and the
+   muscle memory that buys is the whole reason those layouts feel good. The idle
+   state is dimmer so it does not compete with the crosshair. */
 .tpalanca {
   position: absolute;
   left: 0; top: 0;
-  width: calc(var(--u) * 24);
-  height: calc(var(--u) * 24);
-  margin: calc(var(--u) * -12) 0 0 calc(var(--u) * -12);
-  border: calc(var(--u) * .5) solid rgba(26, 48, 192, .5);
+  /* border-box on purpose. The -15u margin is meant to centre a 30u ring on the
+     stick origin, and that only holds if the declared width is the width that
+     gets measured. Content-box added the border on the outside, so the ring
+     painted at 31u and sat half a border-width off its own origin: invisible to
+     a screenshot, but it meant the home position and the drawn ring disagreed
+     by a fraction of a unit at every size. */
+  box-sizing: border-box;
+  width: calc(var(--u) * 30);
+  height: calc(var(--u) * 30);
+  margin: calc(var(--u) * -15) 0 0 calc(var(--u) * -15);
+  border: calc(var(--u) * .5) solid rgba(26, 48, 192, .38);
   border-radius: 50%;
-  background: rgba(246, 243, 230, .3);
-  display: none;
+  background: rgba(246, 243, 230, .2);
+  opacity: .72;
   pointer-events: none;
+  transition: opacity .1s ease, background .1s ease;
   z-index: 3;
 }
-.tpalanca.on { display: block; }
+.tpalanca.on {
+  opacity: 1;
+  background: rgba(246, 243, 230, .34);
+  border-color: rgba(26, 48, 192, .5);
+}
 /* Inner knob, offset by the JS transform. */
 .tpalanca::after {
   content: '';
@@ -110,7 +130,10 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
    #touch below instead, so the first frame before JS runs is still sane. */
 .tb {
   position: absolute;
-  --x: 2; --y: 2; --d: 15;
+  /* 19 is the secondary diameter. It is declared here, not per button, because
+     every combat button except FIRE takes it from this default and a number
+     repeated nine times is a number that will drift. */
+  --x: 2; --y: 2; --d: 19;
   right: calc(env(safe-area-inset-right, 0px) + var(--u) * var(--x) * var(--k));
   bottom: calc(env(safe-area-inset-bottom, 0px) + var(--u) * var(--y) * var(--k));
   /* --u tracks viewport height, and a landscape phone is only ~390px tall, so
@@ -167,44 +190,33 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
    its own much bigger circle, so it is allowed to fill more. */
 .tb-fire .ico { width: 50%; height: 50%; }
 
-/* Current weapon, in the left column under the system row. It is text on
-   purpose: it is the one place on the layer where a value has to be read
-   rather than recognised, and a spelled-out name is not something an icon can
-   carry.
-
-   Positioned without --k, like .tb-tl above it, so the readout keeps its place
-   in the corner while the combat buttons resize around it. */
-.twpn {
-  position: absolute;
-  left: calc(env(safe-area-inset-left, 0px) + var(--u) * 1.6);
-  top: calc(env(safe-area-inset-top, 0px) + var(--u) * 12.4);
-  z-index: 4;
-  font-family: var(--font-display);
-  font-size: max(9px, calc(var(--u) * 2.6));
-  line-height: 1.1;
-  letter-spacing: .4px;
-  color: var(--ink);
-  text-transform: lowercase;
-  pointer-events: none;
-  white-space: nowrap;
-}
+/* There used to be a .twpn readout here, spelling out the current weapon under
+   the system row. It is gone. The HUD already carries the weapon name in the
+   left column, so the layer was showing the same word twice on one screen, and
+   the copy on the right was the one colliding with the ammo count. The HUD owns
+   every value; the right side owns every control. */
 .tb.on { transform: scale(.9); background: rgba(26, 48, 192, .3); }
 
-/* Corner anchor for the system buttons, which live top-left so the whole right
-   edge belongs to combat controls.
+/* System row: pause, score, music, size and switch, in a single row above the
+   combat cluster on the right.
+
+   Placed with bottom, not top. The cluster is positioned with bottom and --y, so
+   its height is only directly usable as a distance from the bottom edge; using
+   top would mean converting through the layer height, which is the viewport
+   height and not the nominal 100u that --u is a percentage of. Getting that
+   conversion wrong put the row straight through the middle of the cluster.
 
    --k is pinned to 1 here on purpose. applyScale() writes the fitted combat
    scale onto the layer and this element inherits it, but the fit exists to stop
-   the cluster reaching the movement stick, and this corner is nowhere near the
+   the cluster reaching the movement stick and this row is nowhere near the
    stick. Letting it shrink is a pure side effect: on a portrait phone the fit
-   lands near .76, which would quietly drag the pause button down onto the 32px
-   floor. It also means the size slider would be resizing the pause button,
-   which is not what anyone dragging it is asking for. */
-.tb-tl {
+   lands near .64, which would quietly drag the pause button down onto the 32px
+   floor. It also means the size slider would be resizing the pause button, which
+   is not what anyone dragging it is asking for. */
+.tb-sys {
   --k: 1;
-  right: auto; bottom: auto;
-  left: calc(env(safe-area-inset-left, 0px) + var(--u) * var(--x) * var(--k));
-  top: calc(env(safe-area-inset-top, 0px) + var(--u) * var(--y) * var(--k));
+  top: auto;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--u) * (var(--ch, 70) + 2.4));
 }
 
 /* Right-hand combat cluster: FIRE dead centre, the eight secondary actions
@@ -213,18 +225,18 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
      on screen            x runs inward from the right edge,
      left to right        so the x: 1.6 column is the right-hand one
 
-        climb                             nade
-        jump         .----------.        dash
-     .---.---.      |   FIRE   |       .---.---.
-     | reload |     |  x 20.2  |       | melee  |
-     '---'---'      |  y 19.2  |       '---'---'
-                    |  d  20   |
-                    '----------'
-        duck          .----.          aim
-     .---.---.      '----'
-     | jump  |       x 22.7
-     '---'---'       y 1.6
-        climb
+         climb                             nade
+         jump         .-----------.        dash
+      .---.---.      |    FIRE    |       .---.---.
+      | reload |     |   x 23.5   |       | melee  |
+      '---'---'      |   y 23     |       '---'---'
+                     |   d 25     |
+                     '-----------'
+         duck           .----.           aim
+      .---.---.       '----'
+      | jump  |        x 26.5
+      '---'---'        y 1.6
+         climb
 
    The obvious way to put FIRE in the middle is a 3x3 with its middle cell blown
    up, which leaves the centre column with only two free slots and the two
@@ -232,84 +244,95 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
    secondary actions that remain once FIRE and switch-weapon are accounted for,
    so the cluster is a 3x3 minus its centre, not a shape that needed inventing.
 
-   The layout is symmetric about 30.2u from the right edge, the midpoint of the
-   1.6 to 58.8u footprint, and about 29.2u from the bottom, the midpoint of the
-   1.6 to 56.8u one. FIRE's 20.2 to 40.2u span and its 19.2 to 39.2u span are
-   both centred on those two lines. Dead centre is the whole request, so that is
-   what this is.
+   The layout is symmetric about 36u from the right edge, the midpoint of the
+   1.6 to 70.4u footprint, and about 35.5u from the bottom, the midpoint of the
+   1.6 to 69.4u one. FIRE's 23.5 to 48.5u span and its 23 to 48u span are both
+   centred on those two lines. Dead centre is the whole request, so that is what
+   this is.
 
-   Column anchors are x = 1.6 and 43.8 for the flanking pair, and 22.7 for the
-   centre column, which puts its centre at 30.2u to match. FIRE is --d: 20
-   centred on the same line, so it sits at 20.2, not at 22.7: the two differ by
-   half the 5u diameter gap between them, and using the same number for both is
-   what makes a "centred" layout quietly 1u off. Rows are y = 1.6 / 19.2 / 36.8
-   for the flanking columns; the centre column skips the middle row because FIRE
-   is in it and runs 1.6 and 41.8 instead. Secondary buttons are --d: 15, up
-   from 12, and FIRE is --d: 20, up from 17.6.
+   Column anchors are x = 1.6 and 51.4 for the flanking pair and 26.5 for the
+   centre column, which puts its centre at 36u to match. FIRE is --d: 25 centred
+   on the same line, so it sits at 23.5, not at 26.5: the two differ by half the
+   3u diameter gap between them, and giving both the same --x lines up their
+   left edges and leaves the whole layout 1.5u off centre. Rows are
+   y = 1.6 / 26 / 50.4 for the flanking columns; the centre column skips the
+   middle row because FIRE is in it and runs 1.6 and 50.4 instead.
 
-   Every neighbouring pair keeps at least 2.6u of daylight, and the two 3.6u
-   gaps either side of FIRE are equal, which is what the symmetry above is
-   checked on. That margin is what makes the 32px floors safe on the shortest
-   realistic phone. A 15u button is 63% wider than the 9.2u of the text era.
+   Secondary buttons are --d: 19, up from 15, and FIRE is --d: 25, up from 20.
+   On a 390px-tall landscape phone that is 74px and 98px, against a 32px floor.
+   This is as large as a symmetric 3x3 goes: a --d: 25 FIRE needs 25 plus two
+   19u buttons and three 2.4u gaps either side of it to stay centred, which is
+   70.8u of height, and the flanking columns need three more rows on top of that
+   to stay symmetrical.
 
-   Those two numbers, 58.8 from the right edge and 56.8 from the bottom, are
-   the footprint CLUSTER_W and CLUSTER_H in touch.js measure against. They are
+   Every neighbouring pair keeps at least 2.4u of daylight, and the two 2.9u gaps
+   either side of FIRE are equal, which is what the symmetry above is checked
+   on. That margin is what makes the 32px floors safe on the shortest realistic
+   phone. A 19u button is more than twice the 9.2u of the text era.
+
+   Those two numbers, 70.4 from the right edge and 69.4 from the bottom, are the
+   footprint CLUSTER_W and CLUSTER_H in touch.js measure against. They are
    extents from the screen edge rather than spans between the outermost buttons,
    because the buttons are anchored inward from those edges and it is the far
    edge that has to clear the movement zone. They are duplicated across the two
    files by necessity, since one is a declaration and the other a calculation, so
    they are called out in both places and the test suite asserts both against
-   the geometry actually declared here.
+   the geometry actually declared here. CLUSTER_H is also published onto the
+   layer as --ch, which is what the system row and the weapon readout are placed
+   against, so they follow the cluster instead of drifting away from it.
 
-   One cost worth naming: centring FIRE moves it from 1.6u off the right edge to
-   20.2u, so the button you press most is no longer the closest one to the
-   bottom-right corner the thumb pivots on. On the 3x3 it is now the fourth
-   nearest of the nine by centre distance, behind melee, aim and dash. That is
-   inherent to centring it, not an error in the arithmetic. If it turns out to
-   be a stretch under load, the fix is to drop FIRE into the bottom-centre cell
-   and give the centre column three buttons above it, which has to be paid for
-   out of the flanking columns. */
-.tb-fire { --x: 20.2; --y: 19.2; --d: 20; transform: rotate(-3deg); }
+   Reach is the cost here, and it is a bigger cost than centring FIRE alone was.
+   The thumb pivots near the bottom-right corner, and the far column's top
+   button, grapple, now sits 85u out, which is 334px on a landscape phone. PUBG
+   and Free Fire both put their climb and prone controls on the LEFT for exactly
+   this reason. Everything is on the right here because that was asked for, so
+   if grapple proves to be the button that gets missed, moving it to the left
+   column above the stick is a two-line change and it is where the genre puts it. */
+.tb-fire { --x: 23.5; --y: 23; --d: 25; transform: rotate(-3deg); }
 .tb-fire.on { transform: rotate(-3deg) scale(.9); }
 
-.tb-aim    { --x: 22.7; --y: 1.6; transform: rotate(2deg); }
+.tb-aim    { --x: 26.5; --y: 1.6; transform: rotate(2deg); }
 .tb-aim.on { transform: rotate(2deg) scale(.9); }
-.tb-reload { --x: 22.7; --y: 41.8; transform: rotate(-2deg); }
+.tb-reload { --x: 26.5; --y: 50.4; transform: rotate(-2deg); }
 .tb-reload.on { transform: rotate(-2deg) scale(.9); }
 
 .tb-melee { --x: 1.6; --y: 1.6; transform: rotate(2deg); }
 .tb-melee.on { transform: rotate(2deg) scale(.9); }
-.tb-dash { --x: 1.6; --y: 19.2; transform: rotate(-2deg); }
+.tb-dash { --x: 1.6; --y: 26; transform: rotate(-2deg); }
 .tb-dash.on { transform: rotate(-2deg) scale(.9); }
-.tb-nade { --x: 1.6; --y: 36.8; transform: rotate(2deg); }
+.tb-nade { --x: 1.6; --y: 50.4; transform: rotate(2deg); }
 .tb-nade.on { transform: rotate(2deg) scale(.9); }
 
-.tb-duck { --x: 43.8; --y: 1.6; transform: rotate(-2deg); }
+.tb-duck { --x: 51.4; --y: 1.6; transform: rotate(-2deg); }
 .tb-duck.on { transform: rotate(-2deg) scale(.9); }
-.tb-jump { --x: 43.8; --y: 19.2; transform: rotate(2deg); }
+.tb-jump { --x: 51.4; --y: 26; transform: rotate(2deg); }
 .tb-jump.on { transform: rotate(2deg) scale(.9); }
-.tb-grapple { --x: 43.8; --y: 36.8; transform: rotate(-2deg); }
+.tb-grapple { --x: 51.4; --y: 50.4; transform: rotate(-2deg); }
 .tb-grapple.on { transform: rotate(-2deg) scale(.9); }
 
-/* System buttons, top-left, so nothing but combat sits on the right. Five now:
-   switch-weapon joined pause, score, music and the size control, because
-   centring FIRE left the cluster one button short. */
-.tb-slot { --x: 1.6; --y: 1.6; --d: 9.6; transform: rotate(3deg); }
+/* System row, above the cluster on the right: switch-weapon, pause, score, music
+   and the size control, right-aligned to the cluster's near edge. --y is ignored
+   here because .tb-sys places the row off the fitted cluster height. */
+.tb-slot { --x: 1.6; --d: 9.6; transform: rotate(3deg); }
 .tb-slot.on { transform: rotate(3deg) scale(.9); }
-.tb-pausa { --x: 13; --y: 1.6; --d: 9.6; }
-.tb-score { --x: 24.4; --y: 1.6; --d: 9.6; }
-.tb-music { --x: 35.8; --y: 1.6; --d: 9.6; }
-.tb-size  { --x: 47.2; --y: 1.6; --d: 9.6; }
+.tb-pausa { --x: 13.6; --d: 9.6; }
+.tb-score { --x: 25.6; --d: 9.6; }
+.tb-music { --x: 37.6; --d: 9.6; }
+.tb-size  { --x: 49.6; --d: 9.6; }
 
 /* --------------------------------------------------------- size control ---- */
 
-/* Sits under the system row, above the combat cluster, and only exists while
-   open. It is positioned rather than centred because the top-left corner is the
-   one part of the layer no thumb covers during a fight. */
+/* Sits under the system row, right-aligned to it, and only exists while open.
+   It tracks --ch like the row above it, so the two stay locked together as the
+   combat fit changes. */
 .tset {
   position: absolute;
-  left: calc(env(safe-area-inset-left, 0px) + var(--u) * 1.6);
-  top: calc(env(safe-area-inset-top, 0px) + var(--u) * 16.6);
+  right: calc(env(safe-area-inset-right, 0px) + var(--u) * 1.6);
+  /* bottom, not top, for the same reason as .tb-sys: the cluster it has to clear
+     is positioned from the bottom edge, so the offset it inherits has to be
+     measured from the same edge. Placed just above the row, which is 9.6u tall
+     and starts 2.4u clear of the cluster. */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--u) * (var(--ch, 70) + 13.4));
   display: none;
   align-items: center;
   gap: calc(var(--u) * 1.4);
@@ -360,13 +383,27 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
      viewport changes, which covers portrait, landscape, tablets and iOS
      browser chrome with one rule and no breakpoint to fall out of date.
 
-     What is still worth a media query is what the fit cannot express, which is
-     losing the two system niceties: score and music are optional, and on a
-     narrow screen the five-button row they sit in is competing for the same
-     corner. That leaves switch, pause and size on a phone held upright. */
+     What is still worth a media query is what the fit cannot express.
+
+     First, losing the two system niceties: score and music are optional, and on
+     a narrow screen the five-button row they sit in is competing for the same
+     corner. That leaves switch, pause and size on a phone held upright.
+
+     Second, and the reason the two rules below reassign --x rather than just
+     hiding buttons: .tb-sys is pinned to --k: 1, so it does not shrink with the
+     fitted cluster. A portrait phone has the largest --u of any viewport we
+     care about, which is the worst case for a fixed-width row, and at 59.2u the
+     full row reached 260px from a 390px screen. The fit is what keeps the
+     cluster out of the movement zone, and the row reaching into that zone is the
+     same failure the fit exists to prevent: pausing by accident while walking.
+     Narrowing the row to the three buttons that survive keeps each one at full
+     size, and 33.6u clears the zone at every portrait width while staying
+     right-aligned to the cluster's near edge. */
   @media (orientation: portrait) {
     html.tactil #touch .tb-music,
     html.tactil #touch .tb-score { display: none; }
+    html.tactil #touch .tb-pausa { --x: 13.6; }
+    html.tactil #touch .tb-size  { --x: 25.6; }
   }
 
   /* Very narrow landscape (a small phone turned sideways). The cluster is now
@@ -399,12 +436,16 @@ html.tactil .hud-br {
   bottom: auto;
   text-align: left;
 }
-/* Pause sits top-left, so the status strip starts to its right. */
+/* The status strip used to sit top-right, on the assumption that the only
+   control up there was the pause button. The system row moved to the right and
+   took that corner, so the strip joins the rest of the HUD in the left column
+   instead: four stacked readouts on one side, every control on the other. */
 html.tactil .hud-tr {
-  right: calc(env(safe-area-inset-right, 0px) + var(--u) * 44);
-  top: calc(env(safe-area-inset-top, 0px) + var(--u) * .4);
+  right: auto;
+  left: calc(env(safe-area-inset-left, 0px) + var(--u) * 10);
+  top: calc(env(safe-area-inset-top, 0px) + var(--u) * 23.2);
   font-size: calc(var(--u) * 2.6);
-  text-align: right;
+  text-align: left;
 }
 html.tactil .hud-tr .left { font-size: calc(var(--u) * 2); }
 

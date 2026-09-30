@@ -42,7 +42,7 @@ beat your best score.
 - 🔊 Fully procedural audio: every sound and the music are synthesised at
   runtime with the Web Audio API, no audio files
 - 🕹️ Mouse and keyboard plus full PS5 controller support
-- 📱 Touch controls for phones and tablets: floating movement stick, drag to
+- 📱 Touch controls for phones and tablets: fixed movement ring, drag to
   look, and auto-sprint
 - 📲 Installable as a PWA and runs fullscreen on iOS and Android
 - 📉 Adaptive render scale keeps the frame rate up on weaker phones
@@ -119,21 +119,19 @@ The game swaps control prompts automatically when it detects a gamepad.
 
 ### Touch Screen
 
-Phones and tablets get an on-screen control layer instead: the movement stick
-on the left, every combat action on the right, and the oversized **FIRE** button
-in the middle of them, with the other actions flanking it in two columns.
+Phones and tablets get an on-screen control layer: a fixed movement ring on the
+left, every combat action in a 3×3 block on the right with the oversized **FIRE**
+button dead centre, and the five system buttons in a single row above that block.
+Nothing is on the right side of the screen except things you press, and nothing
+is on the left except things you read.
 
 ```
-        climb                             nade
-        jump         .----------.        dash
-     .---.---.      |   FIRE   |       .---.---.
-     | reload |     |          |       | melee  |
-     '---'---'      '----------'       '---'---'
-        duck          .----.          aim
-     .---.---.      '----'
-     | jump  |
-     '---'---'
-        climb
+   inner column     centre       outer column
+   ------------     ------       ------------
+top    grapple       reload        nade
+middle  jump        [ FIRE ]       dash
+bottom  duck         aim           melee
+                     ^ the size slider lives just above, top right
 ```
 
 Every control is a drawn icon, not a word. A 45px circle cannot hold "reload" at
@@ -141,61 +139,73 @@ a size you can read mid-firefight, so the labels went and the buttons grew.
 
 | Action                | Control                                                |
 | --------------------- | ------------------------------------------------------ |
-| Move                  | Left half of the screen — a stick appears where you touch |
+| Move                  | **◯** fixed ring in the left half — thumb goes down on it |
 | Sprint                | Push the stick most of the way out                     |
 | Look / Aim            | Drag anywhere on the right half                        |
-| Fire / Slash          | **◎** crosshair, dead centre — hold                    |
-| Aim / Katana Guard    | **⌐¬** scope brackets, centre bottom — hold            |
+| Fire / Slash          | **▮** cartridge, dead centre — hold                    |
+| Aim / Katana Guard    | **◎** scope, centre bottom — hold                      |
 | Reload                | **↻** circular arrow, centre top                       |
-| Grapple               | **ladder**, outer column top — hold to reel, tap to swing |
-| Jump / Wall Jump      | **↑** arrow up, outer column middle                    |
-| Slide / Air Dash      | **↓** arrow down onto the floor, outer column bottom   |
-| Quick Katana Slash    | **blade**, near column bottom                          |
-| Dash-Slash            | **»** speed lines, near column middle — once the focus gauge is lit |
-| Grenade               | **bomb**, near column top — hold to throw further      |
-| Switch Weapon         | **⇄** crossed arrows, top left; the name you will switch to is spelled out under it |
-| Scoreboard            | **☰** lines, top left — hold (online)                   |
-| Music                 | **♪** note, top left                                    |
-| Button size           | **⛭** sliders, top left                                 |
-| Pause                 | **❙❙** bars, top left                                   |
+| Grapple               | **⚓** rope and anchor, inner column top — hold to reel, tap to swing |
+| Jump / Wall Jump      | **↑** arrow up, inner column middle                    |
+| Slide / Air Dash      | **↓** arrow down onto the floor, inner column bottom   |
+| Quick Katana Slash    | **blade**, outer column bottom                         |
+| Dash-Slash            | **»** speed lines, outer column middle — once the focus gauge is lit |
+| Grenade               | **bomb**, outer column top — hold to throw further     |
+| Switch Weapon         | **⇄** crossed arrows, end of the system row            |
+| Scoreboard            | **☰** lines, system row — hold (online)                |
+| Music                 | **♪** note, system row                                 |
+| Button size           | **⛭** sliders, system row                              |
+| Pause                 | **❙❙** bars, system row                                |
 
-Switch-weapon is in the top-left system row rather than in the cluster. A 3×3
-grid minus its centre has exactly eight free slots, which is precisely the eight
-secondary actions that are left once FIRE and switch are accounted for, so
-switch had to go somewhere. It is a low-frequency action — once a fight, not
-during one — and the system row is the one part of the layer no thumb covers, so
-it costs nothing there.
+Switch-weapon is in the system row rather than in the block. A full 3×3 grid is
+exactly the nine combat actions once FIRE is accounted for, so switch had to go
+somewhere else, and the system row is the one part of the layer no thumb covers.
+It is also a low-frequency action — once a fight, not during one.
 
-The system buttons sit on the opposite side from the combat cluster, so your
-thumb never has to cross the screen mid-fight. They also ignore the size slider,
-because the slider is for the combat buttons and the fit calculation exists to
-keep the cluster clear of the movement stick, which this corner is nowhere near.
+**The system row is on the right, above the block, and the HUD is on the left.**
+That split is the whole point of the arrangement. The HUD stacks score, ammo,
+health and weapon down the left edge, and the system row used to sit on top of
+them, so pausing or opening the scoreboard put a button on the ammo count. The
+readouts and the controls now have the screen to themselves, and no value is
+ever behind a button. For the same reason the layer does not repeat the weapon
+name under the switch button: the HUD already shows it, and showing it twice is
+how it ended up colliding in the first place.
+
+The system buttons ignore the size slider, because the slider is for the combat
+buttons and the fit calculation exists to keep the block clear of the movement
+ring, which this corner is nowhere near. In portrait the row narrows to the three
+buttons that matter — switch, pause and size — because the row does not shrink
+with the block and a portrait phone has the largest layout unit of any viewport.
 
 The buttons are translucent circles drawn in the same ink-and-paper style as the
 rest of the game, so they read as part of the drawing rather than as a platform
 overlay sitting on top of it. The icons are stroked paths rather than a font, so
 they cannot fail to load and they recolour with the pressed state on their own.
 Every one is at least 32px across, and the adjacent pairs keep a gap of at least
-2.6 layout units, so no button ever overlaps another or leaves the screen.
+2.4 layout units, so no button ever overlaps another or leaves the screen.
 
 **FIRE in the middle has a cost, and it is worth knowing about.** The thumb
 pivots near the bottom-right corner, and centring FIRE moves it from 1.6 layout
-units off that edge to 20.2. It is now the fourth nearest of the nine combat
-buttons by centre distance, behind melee, aim and dash. If it turns out to be a
-stretch while you are moving, the fix is to drop it into the bottom-centre cell
-and give the centre column three buttons above it, which has to be paid for out
-of the flanking columns.
+units off that edge to 23.5. It is now the fourth nearest of the nine combat
+buttons by centre distance, behind melee, aim and dash. Grapple is the opposite
+extreme: the inner column puts it 51.4 units from the right edge and 50.4 from
+the bottom, which is a long reach for a thumb that is also holding a gun. If
+either turns out to be a stretch in play, the fix is to move the inner column
+out to the outer edge and swap the two columns' contents, which costs nothing
+else.
 
-**Button size is yours to set.** The slider button in the top-left opens a
+**Button size is yours to set.** The slider button in the system row opens a
 control you can drag from 75% to 135%. Two rules apply to it:
 
 - Your choice is remembered, so it is still there next session.
 - It is a preference, not a promise. The buttons are sized to fit whatever room
   the screen has next to the movement zone, and if your number is bigger than
   the screen allows, the buttons come out smaller than you asked and the readout
-  tells you the real percentage. On a phone held upright, 135% will be refused
-  and you will see roughly 76% next to the slider. A combat button sitting on
-  top of the movement stick is a worse outcome than a smaller button.
+  tells you the real percentage. The block is a 3×3 of 19-unit buttons with a
+  25-unit FIRE, so it needs about 70 units of width past the movement ring, and
+  a phone held upright does not have that. On a 390×844 screen every setting
+  from 75% up resolves to roughly 64%, and the readout says so. A combat button
+  sitting on top of the movement ring is a worse outcome than a smaller button.
 
 The 14 buttons are sized against the live viewport, so the same layout works in
 portrait, landscape, and while iOS browser bars collapse. There is no per-device
@@ -216,8 +226,11 @@ fullscreen for anything but video, so on iPhone and iPad the way to get it is
 
 Notes:
 
-- The stick is a floating joystick: it appears wherever your thumb lands in the
-  left half, and its origin follows if you drag past the rim.
+- The movement ring is always on screen. It has a home position your thumb can
+  come back to between bursts of fire, because a control you cannot see is a
+  control you cannot aim at. Touch on the ring and it stays put; touch anywhere
+  else in the left half and it comes to your thumb, and its origin follows if
+  you drag past the rim. Releasing returns it home.
 - Three fingers work at once, so you can move, turn and shoot at the same time
   without lifting a thumb.
 - Landscape is the preferred orientation. Any touch device held upright gets a
@@ -440,7 +453,7 @@ issues. The art, audio, and game design are all original to this project.
 - [x] All tap targets are at least 32px and none overlap
 - [x] Combat cluster never reaches into the movement zone at any size setting
 - [x] Page does not scroll or rubber-band while playing
-- [x] Floating stick feeds movement, drag feeds look, auto-sprint works
+- [x] Fixed movement ring feeds movement, drag feeds look, auto-sprint works
 - [x] Every action has a button, and input cannot leak into the pause panel
 - [x] Dragging the size slider does not turn the camera
 - [x] Haptic tick on button press where the device supports it
