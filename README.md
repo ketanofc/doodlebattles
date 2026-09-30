@@ -119,8 +119,17 @@ The game swaps control prompts automatically when it detects a gamepad.
 
 ### Touch Screen
 
-Phones and tablets get an on-screen control layer instead. It appears only on a
-touch device, so a desktop browser never sees it.
+Phones and tablets get an on-screen control layer instead, laid out like a
+battle-royale shooter: the movement stick on the left, every combat action on
+the right, and the oversized **FIRE** button in the bottom-right corner where
+your thumb already rests.
+
+```
+        nade    duck    gun
+        dash    jump    climb
+        melee   reload  scope
+        ---- fire ----
+```
 
 | Action                | Control                                                |
 | --------------------- | ------------------------------------------------------ |
@@ -128,18 +137,31 @@ touch device, so a desktop browser never sees it.
 | Sprint                | Push the stick most of the way out                     |
 | Look / Aim            | Drag anywhere on the right half                        |
 | Fire / Slash          | **FIRE** — hold                                        |
-| Aim / Katana Guard    | **AIM** — hold                                         |
-| Grapple               | **HOOK** — hold to reel, tap to swing                  |
-| Quick Katana Slash    | **SLASH**                                               |
+| Aim / Katana Guard    | **SCOPE** — hold                                       |
+| Reload                | **RELOAD**                                             |
+| Grapple               | **CLIMB** — hold to reel, tap to swing                 |
+| Switch Weapon         | **GUN** — shows the weapon you will switch to          |
 | Jump / Wall Jump      | **JUMP**                                               |
 | Slide / Air Dash      | **DUCK** — hold                                        |
+| Quick Katana Slash    | **MELEE**                                              |
 | Dash-Slash            | **DASH** — once the focus gauge is lit                 |
-| Reload                | **RELOAD**                                             |
 | Grenade               | **NADE** — hold to throw further                       |
-| Switch Weapon         | **GUN** — shows the weapon you will switch to          |
-| Scoreboard            | **SCORE** — hold (online)                              |
-| Music                 | **♪**                                                  |
-| Pause                 | **❙❙** — top left                                     |
+| Scoreboard            | **SCORE** — hold (online), top left                    |
+| Music                 | **♪**, top left                                         |
+| Pause                 | **❙❙**, top left                                       |
+
+The system buttons sit on the opposite side from the combat cluster, so your
+thumb never has to cross the screen mid-fight.
+
+The layer is gated on a real coarse pointer, so a desktop browser never sees
+it. A hybrid machine — a laptop or tablet with both a touchscreen and a mouse —
+keeps its keyboard layout until you actually touch the screen, at which point
+the controls appear. Add `?touch=1` to force them on, or `?touch=0` to force
+them off.
+
+On Android the game asks for fullscreen on your first tap. iOS does not allow
+fullscreen for anything but video, so on iPhone and iPad the way to get it is
+**Share → Add to Home Screen**, which the game nudges you toward once.
 
 Notes:
 
@@ -149,10 +171,15 @@ Notes:
 - On a phone held upright the game asks you to rotate, because a 3D shooter
   needs the long axis. Tablets are left alone; a tablet held upright is big
   enough to play.
+- On Android the game asks for fullscreen on your first tap, which removes the
+  browser bars and gives the canvas the whole screen.
 - On iOS, use **Share → Add to Home Screen** to get a fullscreen, installable
-  version. The game shows a one-time hint for this.
-- A hybrid laptop with both a touchscreen and a mouse keeps the keyboard
-  layout. Append `?touch=1` to the URL to force the touch controls on.
+  version. iOS does not permit fullscreen for anything but video, so this is
+  the only route there. The game shows a one-time hint for it.
+- A hybrid machine with both a touchscreen and a mouse keeps the keyboard
+  layout until you actually touch the screen, so a touchscreen laptop is not
+  forced into the thumb controls. Append `?touch=1` to force them on, or
+  `?touch=0` to force them off.
 
 ---
 
@@ -351,12 +378,17 @@ issues. The art, audio, and game design are all original to this project.
 ## Mobile
 
 - [x] Control layer appears on touch devices and stays off on desktop
+- [x] Late arms on first real touch, so a tablet with a paired mouse still gets
+      controls while a hybrid laptop keeps its keyboard
+- [x] Combat cluster on the right with an oversized FIRE, system buttons opposite
 - [x] Layout fits landscape phone and tablet screens, portrait included
 - [x] All tap targets are at least 32px and none overlap
 - [x] Page does not scroll or rubber-band while playing
 - [x] Floating stick feeds movement, drag feeds look, auto-sprint works
 - [x] Every action has a button, and input cannot leak into the pause panel
+- [x] Haptic tick on button press where the device supports it
 - [x] Rotate prompt on phones held upright
+- [x] Fullscreen on first tap, with the iOS add-to-home-screen route as fallback
 - [x] Installable PWA with fullscreen display and safe-area insets
 - [x] Render scale adapts when the frame rate drops
 

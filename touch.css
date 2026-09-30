@@ -129,46 +129,59 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
 }
 .tb.on { transform: scale(.9); background: rgba(26, 48, 192, .3); }
 
-/* Row anchors. tb-top hangs from the status strip, tb-tl is the lone corner
-   button on the other side of the screen. */
-.tb-top { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + var(--u) * var(--y) * var(--k)); }
+/* Corner anchor for the system buttons, which live top-left so the whole right
+   edge belongs to combat controls. */
 .tb-tl {
   right: auto; bottom: auto;
   left: calc(env(safe-area-inset-left, 0px) + var(--u) * var(--x) * var(--k));
   top: calc(env(safe-area-inset-top, 0px) + var(--u) * var(--y) * var(--k));
 }
 
-/* Right-hand cluster, a grid anchored to the bottom-right corner:
-        dash  melee  nade
-        jump  duck   reload
-        fire  aim
-   Each is rotated a few degrees so the block does not read as a keypad, and
-   the pressed state keeps that rotation instead of snapping square. */
-.tb-fire { --x: 1.6; --y: 1.6; --d: 13; transform: rotate(-4deg); }
-.tb-fire.on { transform: rotate(-4deg) scale(.9); }
-.tb-aim { --x: 16; --y: 2.2; --d: 9.2; transform: rotate(3deg); }
-.tb-aim.on { transform: rotate(3deg) scale(.9); }
-.tb-jump { --x: 1.6; --y: 16.2; --d: 9.2; transform: rotate(3deg); }
-.tb-jump.on { transform: rotate(3deg) scale(.9); }
-.tb-duck { --x: 12.2; --y: 16.6; --d: 8.8; transform: rotate(-3deg); }
-.tb-duck.on { transform: rotate(-3deg) scale(.9); }
-.tb-reload { --x: 22.4; --y: 16.2; --d: 8.8; transform: rotate(2deg); }
-.tb-reload.on { transform: rotate(2deg) scale(.9); }
-.tb-nade { --x: 22.4; --y: 26.4; --d: 8.8; transform: rotate(-2deg); }
-.tb-nade.on { transform: rotate(-2deg) scale(.9); }
-.tb-melee { --x: 12.2; --y: 26.4; --d: 8.8; transform: rotate(3deg); }
-.tb-melee.on { transform: rotate(3deg) scale(.9); }
-.tb-dash { --x: 1.6; --y: 26.4; --d: 8.8; transform: rotate(-3deg); }
-.tb-dash.on { transform: rotate(-3deg) scale(.9); }
+/* Right-hand combat cluster, laid out the way battle-royale shooters arrange
+   it: one oversized FIRE anchored in the bottom-right corner where the thumb
+   already is, the other primary actions in the column directly beside it, and
+   the situational actions fanned out to the left.
 
-/* Top row: grapple under the right thumb, then weapon switch, scoreboard and
-   music. These sit in the corner where a thumb rests, so they are small
-   relative to the combat cluster but never below the tap floor. */
-.tb-grapple { --x: 1.6; --y: 1.6; --d: 11; transform: rotate(-3deg); }
-.tb-grapple.on { transform: rotate(-3deg) scale(.9); }
-.tb-slot { --x: 14; --y: 1.6; --d: 8.8; }
-.tb-score { --x: 24.2; --y: 1.6; --d: 8.8; }
-.tb-music { --x: 34.4; --y: 1.6; --d: 8.8; }
+        nade   duck   gun
+        dash   jump   climb
+        melee  reload scope
+        ---- FIRE ----
+
+   Column anchors are x = 1.6 / 18.5 / 29.5 / 40.5 and rows are
+   y = 1.6 / 13.4 / 25.2, in --u. Every neighbouring pair keeps at least 1.4u
+   of daylight, which is what makes the 32px floors safe: on the shortest
+   realistic phone the floor adds well under a pixel per side. FIRE is wider
+   than one column (1.6 to 17.1) and taller than one row, so the column beside
+   it starts past 17.1 and the rows above it start past 17.1 too. */
+.tb-fire { --x: 1.6; --y: 1.6; --d: 15.5; transform: rotate(-3deg); }
+.tb-fire.on { transform: rotate(-3deg) scale(.9); }
+
+.tb-aim    { --x: 18.5; --y: 1.6; --d: 9.2; transform: rotate(2deg); }
+.tb-aim.on { transform: rotate(2deg) scale(.9); }
+.tb-reload    { --x: 18.5; --y: 13.4; --d: 9.2; transform: rotate(-2deg); }
+.tb-reload.on { transform: rotate(-2deg) scale(.9); }
+.tb-grapple   { --x: 18.5; --y: 25.2; --d: 9.2; transform: rotate(2deg); }
+.tb-grapple.on { transform: rotate(2deg) scale(.9); }
+
+.tb-slot   { --x: 29.5; --y: 1.6; --d: 9.2; transform: rotate(-2deg); }
+.tb-slot.on { transform: rotate(-2deg) scale(.9); }
+.tb-jump   { --x: 29.5; --y: 13.4; --d: 9.2; transform: rotate(2deg); }
+.tb-jump.on { transform: rotate(2deg) scale(.9); }
+.tb-duck   { --x: 29.5; --y: 25.2; --d: 9.2; transform: rotate(-2deg); }
+.tb-duck.on { transform: rotate(-2deg) scale(.9); }
+
+.tb-melee   { --x: 40.5; --y: 1.6; --d: 9.2; transform: rotate(2deg); }
+.tb-melee.on { transform: rotate(2deg) scale(.9); }
+.tb-dash    { --x: 40.5; --y: 13.4; --d: 9.2; transform: rotate(-2deg); }
+.tb-dash.on { transform: rotate(-2deg) scale(.9); }
+.tb-nade    { --x: 40.5; --y: 25.2; --d: 9.2; transform: rotate(2deg); }
+.tb-nade.on { transform: rotate(2deg) scale(.9); }
+
+/* System buttons, top-left, so nothing but combat sits on the right. */
+.tb-pausa { --x: 1.6; --y: 1.6; --d: 8.8; transform: rotate(3deg); }
+.tb-pausa.on { transform: rotate(3deg) scale(.9); }
+.tb-score { --x: 12.2; --y: 1.6; --d: 8.8; }
+.tb-music { --x: 22.8; --y: 1.6; --d: 8.8; }
 
 .tb-pausa { --x: 1.6; --y: 1.6; --d: 8.8; transform: rotate(3deg); }
 .tb-pausa.on { transform: rotate(3deg) scale(.9); }
@@ -184,15 +197,24 @@ html.tactil .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
   white-space: nowrap;
 }
 
-/* ------------------------------------------------------------ portrait fit --- */
+  /* ------------------------------------------------------------ portrait fit --- */
 
-/* A phone held upright has ~48u of usable width past the look zone. Squeeze
-   the cluster and drop the two niceties rather than letting buttons overlap. */
-@media (orientation: portrait) {
-  html.tactil #touch .tb { --k: .78; }
-  html.tactil #touch .tb-music,
-  html.tactil #touch .tb-score { display: none; }
-}
+  /* A phone held upright has ~48u of usable width past the look zone. The
+     combat cluster now reaches 49.7u, so squeeze it and drop the two system
+     niceties rather than letting buttons overlap or run off the edge. The
+     combat buttons themselves all stay: on a phone they are the only way to
+     play, and the column anchors scale with --k so nothing collides. */
+  @media (orientation: portrait) {
+    html.tactil #touch .tb { --k: .78; }
+    html.tactil #touch .tb-music,
+    html.tactil #touch .tb-score { display: none; }
+  }
+
+  /* Very narrow landscape (a small phone turned sideways) cannot hold four
+     columns. Drop the least-used action and reflow the rest to three. */
+  @media (orientation: landscape) and (max-height: 360px) {
+    html.tactil #touch .tb-nade { display: none; }
+  }
 
 /* ------------------------------------------------------------ compact HUD --- */
 

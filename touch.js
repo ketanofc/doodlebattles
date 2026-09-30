@@ -29,16 +29,19 @@
   const mq = q => !!(window.matchMedia && window.matchMedia(q).matches);
   const hasTouch = 'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
 
-  /* A laptop with both a touchscreen and a mouse reports (pointer:fine), and
-     those people want the keyboard layout. Only go touch-first when the
-     primary pointer really is coarse. ?touch=1 forces the control layer on,
-     which is the escape hatch for a hybrid laptop and the only way to test the
-     touch build on a desktop browser. */
-  const isTouch = /[?&]touch=1(?:&|$)/.test(location.search) ||
-    (hasTouch && (mq('(pointer: coarse)') || !mq('(pointer: fine)')));
-  if (!isTouch) return;
+  /* ?touch=1 forces the layer on and ?touch=0 keeps it off, which is what the
+     automated touch tests use instead of emulating a real handset. */
+  const forced = /[?&]touch=1(?:&|$)/.test(location.search);
+  const vetoed = /[?&]touch=0(?:&|$)/.test(location.search);
 
-  root.classList.add('tactil');
+  /* go touch-first as soon as the primary pointer is coarse, or when the
+     device has touch but never claims a fine primary pointer (older Android
+     WebViews report neither). */
+  const obvious = hasTouch && (mq('(pointer: coarse)') || !mq('(pointer: fine)'));
+
+  const isTouch = !vetoed && (forced || obvious);
+
+  let booted = false;
 
   /* ------------------------------------------------------------------ markup */
 
@@ -48,19 +51,26 @@
     '<div class="tz-izq" aria-hidden="true"></div>',
     '<div class="tz-der" aria-hidden="true"></div>',
     '<div class="tpalanca" aria-hidden="true"></div>',
-    '<button type="button" class="tb tb-top tb-grapple" aria-label="Grapple">HOOK</button>',
-    '<button type="button" class="tb tb-top tb-slot tb-gun" aria-label="Next weapon"><span class="t-lbl">gun</span></button>',
-    '<button type="button" class="tb tb-top tb-score" aria-label="Scoreboard">SC<br>ORE</button>',
-    '<button type="button" class="tb tb-top tb-music" aria-label="Toggle music">&#9834;</button>',
+
+    /* System row, top-LEFT. The whole right side belongs to combat controls so
+       the thumb never has to cross the screen mid-fight. */
     '<button type="button" class="tb tb-tl tb-pausa" aria-label="Pause">&#10073;&#10073;</button>',
+    '<button type="button" class="tb tb-tl tb-score" aria-label="Scoreboard">SCORE</button>',
+    '<button type="button" class="tb tb-tl tb-music" aria-label="Toggle music">&#9834;</button>',
+
+    /* Combat cluster, all on the right. FIRE is the oversized anchor in the
+       bottom-right corner; the column beside it holds the other primary
+       actions (SCOPE, RELOAD, CLIMB) nearest the thumb. */
     '<button type="button" class="tb tb-fire" aria-label="Fire">FIRE</button>',
-    '<button type="button" class="tb tb-aim" aria-label="Aim">AIM</button>',
+    '<button type="button" class="tb tb-aim" aria-label="Aim down sights (scope)">SCOPE</button>',
+    '<button type="button" class="tb tb-reload" aria-label="Reload">RELOAD</button>',
+    '<button type="button" class="tb tb-grapple" aria-label="Climb / grapple (Q)">CLIMB</button>',
+    '<button type="button" class="tb tb-slot tb-gun" aria-label="Switch weapon"><span class="t-lbl">gun</span></button>',
     '<button type="button" class="tb tb-jump" aria-label="Jump">JUMP</button>',
-    '<button type="button" class="tb tb-duck" aria-label="Duck">DUCK</button>',
-    '<button type="button" class="tb tb-reload" aria-label="Reload">RE<br>LOAD</button>',
-    '<button type="button" class="tb tb-melee" aria-label="Melee">SLASH</button>',
-    '<button type="button" class="tb tb-nade" aria-label="Grenade">NADE</button>',
-    '<button type="button" class="tb tb-dash" aria-label="Dash">DASH</button>'
+    '<button type="button" class="tb tb-duck" aria-label="Crouch">DUCK</button>',
+    '<button type="button" class="tb tb-melee" aria-label="Melee">MELEE</button>',
+    '<button type="button" class="tb tb-dash" aria-label="Dash">DASH</button>',
+    '<button type="button" class="tb tb-nade" aria-label="Grenade">NADE</button>'
   ].join('');
 
   /* Which bag each button writes to, and whether it holds or pulses. "hold" is
@@ -93,7 +103,21 @@
   const SPRINT_AT = 0.82;  /* push nearly all the way out to sprint */
   const PULSE_MS = 200;    /* how long a tapped flag stays set */
 
+  /* Haptics. Android honours the Vibration API; iOS Safari ignores it, which is
+   * why this is a pure enhancement and never load-bearing. Guarded because
+   * navigator.vibrate is absent on iOS and throws in some embedded webviews. */
+  const canBuzz = typeof navigator.vibrate === 'function';
+  const buzz = (ms) => { if (canBuzz) { try { navigator.vibrate(ms); } catch (err) { /* no haptics */ } } };
+
   function boot() {
+    /* Idempotent: a late-armed device can reach here from both the pointerdown
+       and the touchstart listener, and only one build may happen. */
+    if (booted) return;
+    booted = true;
+
+    /* Set before any DOM work: every rule in touch.css is gated on this class,
+       so it has to be in place the instant the layer is attached. */
+    root.classList.add('tactil');
     /* ------------------------------------------------------------ the layer */
 
     const layer = doc.createElement('div');
@@ -175,7 +199,12 @@
      * Watch the two class attributes the game already toggles instead of
      * polling: #hud.nogame means not in a run, #screen.show means a panel is
      * open. One observer on #hud with subtree covers both. */
-    let hidden = false;
+    /* Must start true: the layer is created with class "oculto" (line ~101), so
+     * "not hidden" is not the starting truth. Starting at false made the first
+     * syncVisible() with want===false return early and leave the class in place,
+     * which strands the controls off-screen for the whole session whenever the
+     * game reaches a running state without passing a .show/.nogame state. */
+    let hidden = true;
 
     function syncVisible() {
       const nongame = hudEl && hudEl.classList.contains('nogame');
@@ -438,6 +467,11 @@
         } else {
           pulse(cfg.obj, key);
         }
+        /* A short tick confirms the tap landed without waiting to see the
+         * on-screen result, which matters for the held actions where the
+         * effect is not always obvious. Fire gets a longer buzz because it is
+         * the one you press hardest and most often. */
+        buzz(name === 'fire' ? 12 : 8);
         /* Keep a fast tap from turning into a scroll, a zoom or a long-press
          * selection menu. */
         e.preventDefault();
@@ -596,11 +630,71 @@
       hint.addEventListener('pointerdown', off);
     }
 
+    /* ---------------------------------------------------------- fullscreen */
+
+    /* Android and desktop browsers have a real Fullscreen API, and a shooter
+     * wants every pixel: the browser bars eat height, and the game already
+     * re-measures on resize. It only works from a user gesture, so this hangs
+     * off the first tap that lands anywhere rather than firing on load.
+     *
+     * iOS Safari exposes no element fullscreen for non-video and rejects
+     * requestFullscreen on iPhone entirely, so there the only route to real
+     * fullscreen is installing to the home screen, which the iOS hint above
+     * already covers. Attempting it anyway just logs a console error. */
+    const dse = doc.documentElement;
+    const requestFS = dse.requestFullscreen || dse.webkitRequestFullscreen;
+    if (requestFS && !standalone) {
+      const goFS = () => {
+        /* One shot. A second call throws and would only add noise. */
+        doc.removeEventListener('pointerdown', goFS, true);
+        try {
+          const p = dse.requestFullscreen || dse.webkitRequestFullscreen;
+          const r = p.call(dse);
+          /* Safari returns a promise, some builds return undefined. */
+          if (r && typeof r.catch === 'function') r.catch(() => {});
+        } catch (err) { /* denied, or not supported after all */ }
+      };
+      doc.addEventListener('pointerdown', goFS, true);
+    }
+
     /* Signals that a touch session is live, for anything watching the page. */
     root.classList.add('tactil-listo');
   }
 
+  /* ------------------------------------------------------------ late arming
+   *
+   * A tablet with a paired mouse or trackpad reports (pointer: fine) for its
+   * PRIMARY pointer, because that is what the cursor is, even though the screen
+   * is a touchscreen and the player is holding it. The obvious check above
+   * cannot tell that device from a touchscreen laptop, so it stays off and the
+   * player gets no buttons at all.
+   *
+   * There is no reliable static test for that case, so stop guessing and watch
+   * for the truth: the first event whose pointerType is genuinely "touch" means
+   * this is a touch device no matter what the media queries claimed. Boot then,
+   * and drop the listeners. Costs one passive listener and nothing else. */
+  function armLateTouch() {
+    if (!hasTouch) return;
+    let done = false;
+    const go = (e) => {
+      /* A mouse-driven click on a hybrid laptop must not switch layouts. */
+      if (e && e.pointerType && e.pointerType !== 'touch') return;
+      if (done) return;
+      done = true;
+      window.removeEventListener('pointerdown', go, true);
+      window.removeEventListener('touchstart', go, true);
+      boot();
+    };
+    window.addEventListener('pointerdown', go, true);
+    window.addEventListener('touchstart', go, true);
+  }
+
   /* Started last, once every const above has been initialised. */
-  if (doc.body) boot();
-  else doc.addEventListener('DOMContentLoaded', boot, { once: true });
+  if (isTouch) {
+    if (doc.body) boot();
+    else doc.addEventListener('DOMContentLoaded', boot, { once: true });
+  } else {
+    if (doc.body) armLateTouch();
+    else doc.addEventListener('DOMContentLoaded', armLateTouch, { once: true });
+  }
 })();
