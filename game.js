@@ -624,3 +624,53 @@ function dockyardMap(n) {
 }
 
 
+/* ==========================================================================
+   FULLSCREEN ON PLAY (desktop)
+
+   The touch layer already asks for fullscreen on the first tap of a session,
+   and an installed PWA is already fullscreen because the manifest asks for
+   display:fullscreen. That leaves desktop browsers, where pressing PLAY
+   should still hand over the browser chrome: a shooter wants the height, and
+   the browser bars eat a slice of it.
+
+   The request only succeeds inside a user gesture, so it hangs off a
+   delegated click on #soloBtn rather than being called from bo(), which also
+   runs from non-gesture paths (checkpoint resume, host start). A request
+   made without transient activation is refused, and spending the one-shot
+   flag on that refusal would mean the user's first real PLAY never gets
+   fullscreen.
+
+   Delegation also survives every menu re-render: #soloBtn is a fresh node
+   each time the panel is rebuilt, so a listener bound to the button itself
+   would go away with the old element.
+   ========================================================================== */
+var FullscreenOnce = !1;
+function askFullscreen() {
+  if (FullscreenOnce) return;
+  /* touch.js owns fullscreen on touch devices and already asked on the first
+     tap, so asking again here would just race it. */
+  if (nt && nt.touchMode) return;
+  var el = document.documentElement,
+    req = el.requestFullscreen || el.webkitRequestFullscreen;
+  /* No element fullscreen API at all (iPhone Safari). Leave the flag unset so
+     this is still a no-op rather than a spent attempt on every later click. */
+  if (!req) return;
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
+  FullscreenOnce = !0;
+  try {
+    var p = req.call(el, { navigationUI: "hide" });
+    /* Entering fullscreen changes the reported viewport. Chrome and Firefox
+       fire resize for it, but not every browser does every time, and a stale
+       render target is what stretches or half-swaps the canvas. */
+    if (p && typeof p.then === "function")
+      p.then(function () {
+        se.resize();
+      }).catch(function () {});
+  } catch (e) {
+    /* Denied by policy, sandboxed, or no user activation: stay windowed and
+       let the game run exactly as it did before. */
+  }
+}
+document.addEventListener("click", function (e) {
+  e.target && e.target.closest && e.target.closest("#soloBtn") && askFullscreen();
+}, !0);
